@@ -17,7 +17,7 @@ import com.github.poodleone.anyfileviewer.record.Record;
  * レコードデータのパーサ.
  */
 public class DataParser {
-	private static ItemDefinition paddingDefinition = new HexItemDefinition("[PADDING]", "-1", null);
+	private static ItemDefinition paddingDefinition = new HexItemDefinition("[パディング]", "-1", null);
 
 	/**
 	 * レコードをパースします.
@@ -37,7 +37,7 @@ public class DataParser {
 							new RecordItemImpl(record, paddingDefinition, parserStatus.offset));
 				}
 			} else {
-				record.getMetaItems().put("[ERROR]", "不明なレコード形式(適用可能なdumpLayoutsが見つからない)");
+				record.getMetaItems().put("[エラー]", "不明なレコード形式(適用可能なdumpLayoutsが見つからない)");
 			}
 		} catch (RuntimeException e) {
 			throw new RuntimeException(e);

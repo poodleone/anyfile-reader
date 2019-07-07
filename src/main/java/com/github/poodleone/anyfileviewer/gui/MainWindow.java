@@ -444,10 +444,10 @@ public class MainWindow extends JFrame {
 				return Integer.valueOf(records.getOffeset() + rowIndex + 1);
 			} else {
 				Record record = records.get(rowIndex);
-				if (!record.getMetaItems().containsKey("[ERROR]")) {
+				if (!record.getMetaItems().containsKey("[エラー]")) {
 					return record.getValue(columnNames.get(columnIndex));
 				} else if (columnIndex == 1) {
-					return record.getValue("[ERROR]");
+					return record.getValue("[エラー]");
 				} else {
 					return "";
 				}
