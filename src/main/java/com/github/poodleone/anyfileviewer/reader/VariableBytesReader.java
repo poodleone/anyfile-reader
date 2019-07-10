@@ -100,6 +100,7 @@ public class VariableBytesReader implements RecordReader {
 		}
 		return (count / maxRecords) * maxRecords;
 	}
+	
 	protected Record readRecord(byte[] data, RecordFormat format) {
 		// レコード生成
 		Record record = new AbstractRecord(data) {
