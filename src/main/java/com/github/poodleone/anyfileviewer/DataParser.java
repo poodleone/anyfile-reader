@@ -115,6 +115,34 @@ public class DataParser {
 
 	}
 
+	/**
+	 * 式を評価します.
+	 * 
+	 * @param record     評価対象のレコード
+	 * @param expression 式
+	 * @param returnType 戻り値の型
+	 * @param params     パラメータ
+	 * @return 評価結果
+	 */
+	@SuppressWarnings("unchecked")
+	public static <T> T eval(Record record, String expression, Class<T> returnType, Param... params) {
+		Context cx = Context.enter();
+		try {
+			Scriptable scope = cx.initStandardObjects();
+			ScriptableObject.putProperty(scope, "rec", Context.javaToJS(record, scope));
+			for (Param param : params) {
+				ScriptableObject.putProperty(scope, param.key, Context.javaToJS(param.value, scope));
+			}
+			cx.evaluateString(scope, "var $ = function(name) { return rec.getValue(name); }", "", 1, null);
+			cx.evaluateString(scope, "var $hex = function(name) { return rec.getHexValue(name) }", "", 1, null);
+
+			Object result = cx.evaluateString(scope, expression, "", 1, null);
+			return (T) Context.jsToJava(result, returnType);
+		} finally {
+			Context.exit();
+		}
+
+	}
 	private static class ParserStatus {
 		public int offset = 0;
 

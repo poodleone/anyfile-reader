@@ -122,11 +122,11 @@ public class MainWindow extends JFrame {
 			tableModel.columnNames.add("[No.]");
 			tableModel.columnNames.addAll(records.getFormat().getListItems());
 
+			GUIConfiguration.getInstance().addRecentlyUsedFile(records.getPath());
 			if (oldFormat == records.getFormat()) {
 				tableModel.fireTableDataChanged();
 
 			} else {
-				GUIConfiguration.getInstance().addRecentlyUsedFile(records.getPath());
 				tableModel.fireTableStructureChanged();
 				sorter.setSortKeys(Arrays.asList(new RowSorter.SortKey(0, SortOrder.ASCENDING)));
 			}

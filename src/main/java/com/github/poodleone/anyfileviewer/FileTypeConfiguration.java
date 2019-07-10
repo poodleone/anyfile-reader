@@ -63,27 +63,18 @@ public class FileTypeConfiguration {
 		// レコード形式/データグループ形式定義の読み込み
 		loadDataGroupDefinitions(getStringValue(path, properties, "dataGroupFormats.dir"));
 
-		// RecordReaderの設定
-		getValues(properties, "(?<group>reader\\d+)\\.(?<name>name)").forEach(keyValue -> {
-			String key = keyValue.value;
-			String className = getStringValue(path, properties, keyValue.keyGroup + ".class");
-			try {
-				readerClassMap.put(key, forName(className));
-			} catch (ClassNotFoundException | ClassCastException e) {
-				throw new InvalidFileTypeConfigurationException(path, key, "RecordReaderのクラス" + className + "は存在しません。");
-			}
-		});
-
 		// ファイル形式の設定
 		getValues(properties, "(?<group>fileType\\d+)\\.(?<name>name)").forEach(keyValue -> {
 			// RecordReaderクラスの設定を取得
-			String key = keyValue.keyGroup + ".reader";
-			String readerName = getStringValue(path, properties, key);
-
-			Class<RecordReader> readerClass = readerClassMap.get(readerName);
-			Validate.notNull(readerClass,
-					() -> new InvalidFileTypeConfigurationException(path, key, readerName + "は未定義です"));
-
+			String key = keyValue.keyGroup + ".readerClass";
+			String readerClassName = getStringValue(path, properties, key);
+			Class<RecordReader> readerClass;
+			try {
+				readerClass = forName(readerClassName);
+			} catch (ClassNotFoundException | ClassCastException e) {
+				throw new InvalidFileTypeConfigurationException(path, key, "RecordReaderのクラス" + readerClassName + "は存在しません。");
+			}
+			
 			// Readerのオプション設定を取得
 			Map<String, String> readerOptions = new HashMap<>();
 			try {
