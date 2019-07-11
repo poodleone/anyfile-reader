@@ -132,10 +132,10 @@ public class DetailExporterDialog extends JDialog {
 		openButton1.addActionListener(e -> {
 			// ファイル選択ダイアログを表示(現在の入力値を初期ディレクトリに指定)
 			Path oldPath = toPath(inputPathText.getText());
-			Path newPath = GUIUtils.showFileOpenDialog(this, "ファイルを開く", oldPath);
-			if (newPath != null) {
-				inputPathText.setText(newPath.toString());
-			}
+			Common.showFileOpenDialog(this, fileTypeCombo.getModel(), oldPath, e2 -> {
+				fileTypeCombo.setSelectedItem(e2.getRecordFormat());
+				inputPathText.setText(e2.getPath().toString());
+			});
 		});
 		// - 出力先ファイルパスの開くボタン
 		openButton2.addActionListener(e -> {

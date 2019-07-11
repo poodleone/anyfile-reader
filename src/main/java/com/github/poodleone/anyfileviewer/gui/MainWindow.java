@@ -89,6 +89,10 @@ public class MainWindow extends JFrame {
 	 */
 	public MainWindow() {
 		super();
+		Thread.setDefaultUncaughtExceptionHandler((t, e) -> {
+			GUIUtils.showMessageDialog(this, "AnyfileViewer", "例外が発生しました。", e);
+			e.printStackTrace();
+		});
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		initialize();
 		pack();
@@ -98,22 +102,24 @@ public class MainWindow extends JFrame {
 
 	private void reloadFile() {
 		if (records.getPath() != null) {
-			openFile(records.getPath());
+			openFile(null, records.getPath());
 		}
 	}
 
 	private void openFile() {
-		Path path = GUIUtils.showFileOpenDialog(this, "ファイルを開く", records.getPath());
-		if (path != null) {
-			openFile(path);
-		}
+		Common.showFileOpenDialog(this, fileTypeCombo.getModel(), records.getPath(), e -> {
+			openFile(e.getRecordFormat(), e.getPath());
+		});
 	}
 
-	private void openFile(Path path) {
+	private void openFile(RecordFormat recordFormat, Path path) {
 		try {
 			Path oldPath = records.getPath();
 			RecordFormat oldFormat = records.getFormat();
-			RecordFormat recordFormat = (RecordFormat) fileTypeCombo.getSelectedItem();
+			
+			if (recordFormat == null) {
+				recordFormat = (RecordFormat) fileTypeCombo.getSelectedItem();
+			}
 			int recordOffset = offsetFromText.getText().isEmpty() ? 0 : Integer.parseInt(offsetFromText.getText()) - 1;
 			int maxRows = Integer.parseInt(maxRowsText.getText());
 			records = recordFormat.getReaderClass().newInstance().load(path, recordFormat, recordOffset, maxRows);
@@ -133,7 +139,6 @@ public class MainWindow extends JFrame {
 			if (oldPath != path || oldFormat != records.getFormat()) {
 				tableHeader.sizeWidthToFitData();
 			}
-
 		} catch (InstantiationException | IllegalAccessException e) {
 			throw new RuntimeException(e);
 		} finally {
@@ -396,7 +401,7 @@ public class MainWindow extends JFrame {
 		AtomicInteger i = new AtomicInteger();
 		GUIConfiguration.getInstance().getRecentlyUsedFiles().forEach(e -> {
 			String mnemonic = "_" + Integer.toString(i.getAndIncrement(), 32);
-			recentlyUsedFilesMenu.add(GUIUtils.newJMenuItem(mnemonic + " " + e.toString(), path -> openFile(e)));
+			recentlyUsedFilesMenu.add(GUIUtils.newJMenuItem(mnemonic + " " + e.toString(), path -> openFile(null, e)));
 		});
 	}
 

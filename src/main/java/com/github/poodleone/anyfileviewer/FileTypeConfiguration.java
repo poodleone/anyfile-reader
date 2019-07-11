@@ -42,9 +42,6 @@ public class FileTypeConfiguration {
 	/** ファイルのレコード形式のMap(key: ファイル種類名, value: レコード形式). */
 	private Map<String, RecordFormat> recordFormatMap = new LinkedHashMap<>();
 
-	/** RecordReaderクラスのMap(key: Reader名, value: RecordReaderクラス). */
-	private Map<String, Class<RecordReader>> readerClassMap = new HashMap<>();
-
 	/** 各ファイルのデータグループ定義のMap(key: グループ名(拡張子抜きのプロパティファイル名), value: データグループ定義) */
 	private Map<String, ItemGroupDefinition> dataGroupDefinitionMap = new LinkedHashMap<>();
 

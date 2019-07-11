@@ -20,9 +20,6 @@ public class Main {
 	public static void main(String[] args) throws Exception {
 		UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
 		UIManager.put("Table.font", new javax.swing.plaf.FontUIResource("Monospaced", Font.PLAIN, 12));
-		Thread.setDefaultUncaughtExceptionHandler((t, e) -> {
-			e.printStackTrace();
-		});
 		new MainWindow().setVisible(true);
 	}
 }
