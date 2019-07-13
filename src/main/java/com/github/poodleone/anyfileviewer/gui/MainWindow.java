@@ -27,6 +27,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
@@ -124,15 +125,14 @@ public class MainWindow extends JFrame {
 			int maxRows = Integer.parseInt(maxRowsText.getText());
 			records = recordFormat.getReaderClass().newInstance().load(path, recordFormat, recordOffset, maxRows);
 
-			tableModel.columnNames.clear();
-			tableModel.columnNames.add("[No.]");
-			tableModel.columnNames.addAll(records.getFormat().getListItems());
-
 			GUIConfiguration.getInstance().addRecentlyUsedFile(records.getPath());
 			if (oldFormat == records.getFormat()) {
 				tableModel.fireTableDataChanged();
 
 			} else {
+				tableModel.columnNames.clear();
+				tableModel.columnNames.add("[No.]");
+				tableModel.columnNames.addAll(records.getFormat().getListItems());
 				tableModel.fireTableStructureChanged();
 				sorter.setSortKeys(Arrays.asList(new RowSorter.SortKey(0, SortOrder.ASCENDING)));
 			}
@@ -167,6 +167,20 @@ public class MainWindow extends JFrame {
 	private void showDetailWindows() {
 		Arrays.stream(table.getSelectedRows()).forEach(index -> showDetailWindow(index));
 	}
+	
+	private void showColumnCustomDialog() {
+		Record record = null;
+		int selectedRow = table.getSelectedRow();
+		if (selectedRow != -1) {
+			record = records.get(table.convertRowIndexToModel(selectedRow));
+		} else if (!records.isEmpty()) {
+			record = records.get(0);
+		}
+		if (new ColumnCustomDialog(config, tableModel.columnNames, record).showDialog() == JOptionPane.OK_OPTION) {
+			tableModel.fireTableStructureChanged();
+			tableHeader.sizeWidthToFitData();
+		}
+	}
 
 	private void initialize() {
 		// メニューバーの設定
@@ -179,6 +193,7 @@ public class MainWindow extends JFrame {
 		menubar.add(GUIUtils.newJMenu("一覧(_L)" //
 				, GUIUtils.newJMenuItem("再読込(_R)", e -> reloadFile(), KeyStroke.getKeyStroke("F5")),
 				GUIUtils.newJMenuItem("詳細を開く", e -> showDetailWindows()),
+				GUIUtils.newJMenuItem("列のカスタマイズ", e -> showColumnCustomDialog()),
 				GUIUtils.newJMenuItem("列幅を調整", e -> tableHeader.sizeWidthToFitData())));
 		menubar.add(GUIUtils.newJMenu("その他(_O)" //
 				, propertiesSelectorMenu));
