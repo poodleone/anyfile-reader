@@ -58,10 +58,6 @@ public class DataParser {
 	 */
 	public static void parseRecord(Record record, RecordFormat format) {
 		try {
-			format.getMetaItemExpressions().entrySet().forEach(e -> {
-				record.getMetaItems().put(e.getKey(), new RecordExpressionItem(record, e.getValue()));
-			});
-
 			Optional<ItemGroupDefinition> definitions = format.getDumpLayoutDefinitions().stream() //
 					.filter(e -> evalAsBoolean(record, e.getCondition())).findFirst();
 			if (definitions.isPresent()) {
@@ -74,6 +70,10 @@ public class DataParser {
 			} else {
 				record.getMetaItems().put("[エラー]", "不明なレコード形式(適用可能なdumpLayoutsが見つからない)");
 			}
+
+			format.getMetaItemExpressions().entrySet().forEach(e -> {
+				record.getMetaItems().put(e.getKey(), new RecordExpressionItem(record, e.getValue()));
+			});
 		} catch (RuntimeException e) {
 			throw new RuntimeException(e);
 		}
