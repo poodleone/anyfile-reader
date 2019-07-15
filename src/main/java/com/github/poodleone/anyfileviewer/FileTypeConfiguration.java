@@ -223,7 +223,7 @@ public class FileTypeConfiguration {
 						() -> new InvalidFileTypeConfigurationException(path, keyValue.key, "形式が不正です。"));
 
 				if (type.trim().equals("group")) {
-					Arrays.stream(values[1].split(CSV_SEPARATOR)).skip(1).forEach(e -> {
+					Arrays.stream(values[1].split(CSV_SEPARATOR)).forEach(e -> {
 						String name = e.trim();
 						loadDataGroupDefinition(path.getParent().resolve(name + ".properties"));
 						target.add(dataGroupDefinitionMap.get(name));
