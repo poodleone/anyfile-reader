@@ -181,6 +181,18 @@ public class MainWindow extends JFrame {
 			tableHeader.sizeWidthToFitData();
 		}
 	}
+	
+	private void showExpressionTestDialog() {
+		Record record = null;
+		int selectedRow = table.getSelectedRow();
+		if (selectedRow != -1) {
+			record = records.get(table.convertRowIndexToModel(selectedRow));
+		} else if (!records.isEmpty()) {
+			record = records.get(0);
+		}
+		String result = DataParser.eval(record, Objects.toString(filterText.getEditor().getItem(), ""));
+		GUIUtils.showMessageDialog(this, "フィルタの式をテスト", result, null);
+	}
 
 	private void initialize() {
 		// メニューバーの設定
@@ -196,6 +208,7 @@ public class MainWindow extends JFrame {
 				GUIUtils.newJMenuItem("列のカスタマイズ", e -> showColumnCustomDialog()),
 				GUIUtils.newJMenuItem("列幅を調整", e -> tableHeader.sizeWidthToFitData())));
 		menubar.add(GUIUtils.newJMenu("その他(_O)" //
+				, GUIUtils.newJMenuItem("フィルタの式をテスト(_T)", e -> showExpressionTestDialog(), KeyStroke.getKeyStroke("ctrl T"))
 				, propertiesSelectorMenu));
 		setJMenuBar(menubar);
 
@@ -242,6 +255,7 @@ public class MainWindow extends JFrame {
 		filterModeCheckBoxMenuItem.setToolTipText("高度なフィルタ(式を使用できるフィルタ)を有効にする。");
 		filterMenu.add(GUIUtils.newJMenuItem("このフィルタを保存する", e -> saveFilter()));
 		filterMenu.add(GUIUtils.newJMenuItem("このフィルタを削除する", e -> removeFilter()));
+		filterMenu.add(GUIUtils.newJMenuItem("フィルタの式をテスト", e -> showExpressionTestDialog()));
 		filterMenu.add(filterModeCheckBoxMenuItem);
 		filterMenuButton.setComponentPopupMenu(filterMenu);
 		filterMenuButton.addActionListener(e -> filterMenu.show(filterMenuButton, 0, filterMenuButton.getHeight()));
