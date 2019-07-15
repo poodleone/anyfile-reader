@@ -46,7 +46,6 @@ public class DataParser {
 
 	private static boolean parseItems(String groupName, ItemDefinition itemDefinition, Record record,
 			ParserStatus parserStatus) {
-		String name = groupName.isEmpty() ? itemDefinition.getName() : groupName + "." + itemDefinition.getName();
 
 		if (itemDefinition instanceof ItemGroupDefinition) {
 			// グループの場合、条件を評価して子項目のパースを行う
@@ -62,10 +61,20 @@ public class DataParser {
 						continue;
 					}
 				}
+				String itemName = itemDefinition.getName();
+				String name;
+				if (!groupName.isEmpty() && !itemName.isEmpty()) {
+					name = groupName + "." + itemDefinition.getName();
+				} else if (itemName.isEmpty()) {
+					name = groupName;
+				} else {
+					name = itemName;
+				}
 				isAdded = parseItems(name, child, record, parserStatus);
 			}
 		} else {
 			// 項目の場合、レコードに項目を追加
+			String name = groupName + "." + itemDefinition.getName();
 			record.getItems().put(name, new RecordItemImpl(record, itemDefinition, parserStatus.offset));
 			parserStatus.offset += itemDefinition.getLength(record, parserStatus.offset);
 		}

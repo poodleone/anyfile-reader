@@ -456,12 +456,17 @@ public class MainWindow extends JFrame {
 
 		@Override
 		public String getColumnName(int columnIndex) {
-			return columnNames.get(columnIndex);
+			String columnName = columnNames.get(columnIndex);
+			if ("[No.]".equals(columnName)) {
+				return columnName;
+			} else {
+				return columnNames.get(columnIndex).replaceFirst(".*\\.", "");
+			}
 		}
 
 		@Override
 		public Class<?> getColumnClass(int columnIndex) {
-			return "[No.]".equals(getColumnName(columnIndex)) ? Integer.class : Object.class;
+			return "[No.]".equals(columnNames.get(columnIndex)) ? Integer.class : Object.class;
 		}
 
 		@Override
@@ -476,7 +481,7 @@ public class MainWindow extends JFrame {
 
 		@Override
 		public Object getValueAt(int rowIndex, int columnIndex) {
-			if ("[No.]".equals(getColumnName(columnIndex))) {
+			if ("[No.]".equals(columnNames.get(columnIndex))) {
 				return Integer.valueOf(records.getOffeset() + rowIndex + 1);
 			} else {
 				Record record = records.get(rowIndex);

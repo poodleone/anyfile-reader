@@ -191,7 +191,7 @@ public class FileTypeConfiguration {
 				Validate.notNull(conditionType,
 						() -> new InvalidFileTypeConfigurationException(path, keyValue.key, "elsifに対応するifが見つかりません。"));
 
-				children.add(new ItemGroupDefinition(groupName, subGroup, subGroupCondition, conditionType));
+				children.add(new ItemGroupDefinition("", subGroup, subGroupCondition, conditionType));
 				subGroup = new ArrayList<>();
 				subGroupCondition = keyValue.value.substring(5);
 				conditionType = ConditionType.ELSIF;
@@ -200,7 +200,7 @@ public class FileTypeConfiguration {
 				Validate.notNull(conditionType,
 						() -> new InvalidFileTypeConfigurationException(path, keyValue.key, "elseに対応するifが見つかりません。"));
 
-				children.add(new ItemGroupDefinition(groupName, subGroup, subGroupCondition, conditionType));
+				children.add(new ItemGroupDefinition("", subGroup, subGroupCondition, conditionType));
 				subGroup = new ArrayList<>();
 				subGroupCondition = null;
 				conditionType = ConditionType.ELSE;
@@ -209,7 +209,7 @@ public class FileTypeConfiguration {
 				Validate.notNull(conditionType,
 						() -> new InvalidFileTypeConfigurationException(path, keyValue.key, "endifに対応するifが見つかりません。"));
 
-				children.add(new ItemGroupDefinition(groupName, subGroup, subGroupCondition, conditionType));
+				children.add(new ItemGroupDefinition("", subGroup, subGroupCondition, conditionType));
 				subGroup = null;
 				subGroupCondition = null;
 				conditionType = null;
