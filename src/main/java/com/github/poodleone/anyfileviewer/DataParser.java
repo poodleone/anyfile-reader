@@ -1,5 +1,10 @@
 package com.github.poodleone.anyfileviewer;
 
+import java.io.IOException;
+import java.io.Reader;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Optional;
 
 import org.mozilla.javascript.Context;
@@ -12,13 +17,39 @@ import com.github.poodleone.anyfileviewer.itemdefinition.ItemGroupDefinition;
 import com.github.poodleone.anyfileviewer.itemdefinition.ItemGroupDefinition.ConditionType;
 import com.github.poodleone.anyfileviewer.record.RecordItemImpl;
 import com.github.poodleone.anyfileviewer.record.Record;
+import com.github.poodleone.anyfileviewer.record.RecordExpressionItem;
 
 /**
  * レコードデータのパーサ.
  */
 public class DataParser {
 	private static ItemDefinition paddingDefinition = new HexItemDefinition("[パディング]", "-1", null);
+	private static Scriptable scope;
 
+	/**
+	 * パーサを初期化します.
+	 */
+	public static void initialize() {
+		Context cx = Context.enter();
+		scope = cx.initStandardObjects();
+		Context.exit();
+	}
+	
+	/**
+	 * スクリプトを読み込みます.
+	 * 
+	 * @param path スクリプトのパス
+	 * @throws IOException スクリプトの読み込みで異常が発生した場合
+	 */
+	public static void loadScript(Path path) throws IOException {
+		Context cx = Context.enter();
+		try (Reader reader = Files.newBufferedReader(path, StandardCharsets.UTF_8)) {
+			cx.evaluateReader(scope, reader, path.toString(), 1, null);
+		} finally {
+			Context.exit();
+		}
+	}
+	
 	/**
 	 * レコードをパースします.
 	 * 
@@ -27,6 +58,10 @@ public class DataParser {
 	 */
 	public static void parseRecord(Record record, RecordFormat format) {
 		try {
+			format.getMetaItemExpressions().entrySet().forEach(e -> {
+				record.getMetaItems().put(e.getKey(), new RecordExpressionItem(record, e.getValue()));
+			});
+
 			Optional<ItemGroupDefinition> definitions = format.getDumpLayoutDefinitions().stream() //
 					.filter(e -> evalAsBoolean(record, e.getCondition())).findFirst();
 			if (definitions.isPresent()) {
@@ -108,7 +143,6 @@ public class DataParser {
 	public static String eval(Record record, String expression, Param... params) {
 		Context cx = Context.enter();
 		try {
-			Scriptable scope = cx.initStandardObjects();
 			ScriptableObject.putProperty(scope, "rec", Context.javaToJS(record, scope));
 			for (Param param : params) {
 				ScriptableObject.putProperty(scope, param.key, Context.javaToJS(param.value, scope));
@@ -121,7 +155,6 @@ public class DataParser {
 		} finally {
 			Context.exit();
 		}
-
 	}
 
 	/**

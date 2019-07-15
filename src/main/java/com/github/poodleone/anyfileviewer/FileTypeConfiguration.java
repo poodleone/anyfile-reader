@@ -57,6 +57,17 @@ public class FileTypeConfiguration {
 		this.path = path;
 		Properties properties = loadProperties(path);
 
+		// スクリプトの読み込み
+		DataParser.initialize();
+		getValues(properties, "(?<group>scriptPath\\d+)(?<name>)").forEach(keyValue -> {
+			try {
+				Path scriptPath = Paths.get(getClass().getClassLoader().getResource(keyValue.value).toURI());
+				DataParser.loadScript(scriptPath);
+			} catch (URISyntaxException | IOException e) {
+				throw new InvalidFileTypeConfigurationException(path, keyValue.key, "スクリプト" + path + "の読み込みで異常が発生しました。", e);
+			}
+		});
+
 		// レコード形式/データグループ形式定義の読み込み
 		loadDataGroupDefinitions(getStringValue(path, properties, "dataGroupFormats.dir"));
 
@@ -96,9 +107,15 @@ public class FileTypeConfiguration {
 			} else {
 				dumpLayoutDefinitions = Collections.emptyList();
 			}
+			
+			// 式で評価するメタデータの定義を取得
+			Map<String, String> metaItemExpressions = new HashMap<>();
+			getValues(properties, "(?<group>" + keyValue.keyGroup + "\\.metaItemExpression)\\.(?<name>.+)").forEach(keyValue2 -> {
+				metaItemExpressions.put(keyValue2.keyName, keyValue2.value);
+			});
 
 			recordFormatMap.put(name,
-					new RecordFormat(name, listItems, dumpLayoutDefinitions, readerClass, readerOptions));
+					new RecordFormat(name, listItems, dumpLayoutDefinitions, readerClass, readerOptions, metaItemExpressions));
 		});
 	}
 

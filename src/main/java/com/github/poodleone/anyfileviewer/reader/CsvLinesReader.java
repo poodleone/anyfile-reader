@@ -3,6 +3,7 @@ package com.github.poodleone.anyfileviewer.reader;
 import java.util.Arrays;
 import java.util.List;
 
+import com.github.poodleone.anyfileviewer.DataParser;
 import com.github.poodleone.anyfileviewer.RecordFormat;
 import com.github.poodleone.anyfileviewer.record.AbstractRecord;
 import com.github.poodleone.anyfileviewer.record.Record;
@@ -34,6 +35,7 @@ public class CsvLinesReader extends LinesReader {
 				record.getItems().put("[" + i + "]", values[i]);
 			}
 		}
+		DataParser.parseRecord(record, format);
 		return record;
 	}
 

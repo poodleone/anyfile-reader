@@ -29,6 +29,9 @@ public class RecordFormat {
 
 	/** RecordReaderクラスのオプション. */
 	private Map<String, String> readerOptions;
+	
+	/** 式で評価するメタデータの定義. */
+	private Map<String, String> metaItemExpressions;
 
 	/**
 	 * レコード形式の定義を生成します.
@@ -38,14 +41,16 @@ public class RecordFormat {
 	 * @param dumpLayoutDefinitions ダンプのレイアウト定義リスト
 	 * @param readerClass           ファイル読み込みに使用するRecordReaderクラス
 	 * @param readerOptions         RecordReaderクラスのオプション
+	 * @param metaItemExpressions   式で評価するメタデータの定義.
 	 */
 	public RecordFormat(String name, List<String> listItems, List<ItemGroupDefinition> dumpLayoutDefinitions,
-			Class<RecordReader> readerClass, Map<String, String> readerOptions) {
+			Class<RecordReader> readerClass, Map<String, String> readerOptions, Map<String, String> metaItemExpressions) {
 		this.name = name;
 		this.listItems = listItems;
 		this.dumpLayoutDefinitions = Collections.unmodifiableList(dumpLayoutDefinitions);
 		this.readerClass = readerClass;
 		this.readerOptions = readerOptions;
+		this.metaItemExpressions = metaItemExpressions;
 	}
 
 	/**
@@ -83,6 +88,13 @@ public class RecordFormat {
 		return readerOptions;
 	}
 
+	/**
+	 * @return 式で評価するメタデータの定義
+	 */
+	public Map<String, String> getMetaItemExpressions() {
+		return metaItemExpressions;
+	}
+	
 	/**
 	 * @return レコードのメタデータの項目名のリスト
 	 */

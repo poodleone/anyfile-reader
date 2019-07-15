@@ -12,6 +12,7 @@ import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.github.poodleone.anyfileviewer.DataParser;
 import com.github.poodleone.anyfileviewer.RecordFormat;
 import com.github.poodleone.anyfileviewer.record.AbstractRecord;
 import com.github.poodleone.anyfileviewer.record.ErrorRecord;
@@ -117,6 +118,7 @@ public class LinesReader implements RecordReader {
 			// 項目をレコードにセット
 			record.getInnerItems().put("[format]", format.getName());
 			format.getMetaDataNames().stream().forEach(e -> record.getMetaItems().put(e, m.group(e)));
+			DataParser.parseRecord(record, format);
 			return record;
 		} else {
 			return new ErrorRecord("不明なレコード形式(適用可能なrecordPatternが見つからない)");
