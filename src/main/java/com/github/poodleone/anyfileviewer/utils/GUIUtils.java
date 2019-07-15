@@ -10,6 +10,7 @@ import java.nio.file.Path;
 import java.util.Enumeration;
 import java.util.function.Consumer;
 
+import javax.swing.AbstractButton;
 import javax.swing.Box;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
@@ -52,6 +53,22 @@ public class GUIUtils {
 	public static <T> T setup(T c, Consumer<T> initializer) {
 		initializer.accept(c);
 		return c;
+	}
+	
+	/**
+	 * ボタンにニーモニックを設定します.
+	 * 
+	 * @param component ボタン
+	 * @return ボタン
+	 */
+	public static <T extends AbstractButton> T setup(T component) {
+		String text = component.getText();
+		int offsetMnemonic = text.indexOf("_");
+		if (offsetMnemonic != -1) {
+			component.setText(text.replaceFirst("_", ""));
+			component.setMnemonic(text.charAt(offsetMnemonic + 1));
+		}
+		return component;
 	}
 
 	/**

@@ -1,7 +1,6 @@
 package com.github.poodleone.anyfileviewer.gui;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
@@ -19,8 +18,6 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
-import javax.swing.border.LineBorder;
-
 import com.github.poodleone.anyfileviewer.FileTypeConfiguration;
 import com.github.poodleone.anyfileviewer.record.Record;
 
@@ -63,12 +60,12 @@ public class ColumnCustomDialog extends JDialog {
 		panel.setLayout(gbl);
 		addComponent(columnNameText, 0, 0, 4, 1, 0.0d, 0.0d, GridBagConstraints.HORIZONTAL);
 
-		addComponent(fromList, 0, 1, 1, 4, 1.0d, 1.0d, GridBagConstraints.BOTH);
+		addComponent(fromList, 0, 1, 1, 5, 1.0d, 1.0d, GridBagConstraints.BOTH);
 		
 		addComponent(insertButton, 1, 1, 1, 1, 0.0d, 0.0d, GridBagConstraints.HORIZONTAL);
 		addComponent(removeButton, 1, 2, 1, 1, 0.0d, 0.0d, GridBagConstraints.HORIZONTAL);
 		
-		addComponent(toList, 2, 1, 1, 4, 1.0d, 1.0d, GridBagConstraints.BOTH);
+		addComponent(toList, 2, 1, 1, 5, 1.0d, 1.0d, GridBagConstraints.BOTH);
 		
 		addComponent(topButton, 3, 1, 1, 1, 0.0d, 0.0d, GridBagConstraints.HORIZONTAL);
 		addComponent(upButton, 3, 2, 1, 1, 0.0d, 0.0d, GridBagConstraints.HORIZONTAL);
@@ -79,9 +76,9 @@ public class ColumnCustomDialog extends JDialog {
 		bottom.setLayout(new BoxLayout(bottom, BoxLayout.X_AXIS));
 		bottom.add(applyButton);
 		bottom.add(cancelButton);
-		applyButton.setAlignmentX(Component.CENTER_ALIGNMENT);
-		cancelButton.setAlignmentX(Component.CENTER_ALIGNMENT);
-		bottom.setBorder(new LineBorder(Color.BLACK));
+		bottom.setAlignmentX(Component.LEFT_ALIGNMENT);
+		applyButton.setAlignmentX(Component.RIGHT_ALIGNMENT);
+		cancelButton.setAlignmentX(Component.RIGHT_ALIGNMENT);
 		addComponent(bottom, 0, 6, 4, 1, 0.0d, 0.0d, GridBagConstraints.HORIZONTAL);
 		
 		panel.setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -115,6 +112,7 @@ public class ColumnCustomDialog extends JDialog {
 			insertButton.setEnabled(!fromListModel.isEmpty());
 			removeButton.setEnabled(!toListModel.isEmpty());
 		};
+		
 		// コントロールの挙動を設定
 		// - 挿入ボタン
 		insertButton.addActionListener(e -> {
@@ -152,6 +150,7 @@ public class ColumnCustomDialog extends JDialog {
 				updateButton.run();
 			}
 		});
+		// - 先頭ボタン
 		topButton.addActionListener(e ->{
 			int toIndex = toList.getSelectedIndex();
 			if (toIndex != -1) {
@@ -159,6 +158,7 @@ public class ColumnCustomDialog extends JDialog {
 				toList.setSelectedIndex(0);
 			}
 		});
+		// - 上へボタン
 		upButton.addActionListener(e ->{
 			int toIndex = toList.getSelectedIndex();
 			if (toIndex != -1 && toIndex != 0) {
@@ -167,6 +167,7 @@ public class ColumnCustomDialog extends JDialog {
 				toList.setSelectedIndex(newToIndex);
 			}
 		});
+		// - 下へボタン
 		downButton.addActionListener(e ->{
 			int toIndex = toList.getSelectedIndex();
 			if (toIndex != -1 && toIndex != toList.getLastVisibleIndex()) {
@@ -174,7 +175,8 @@ public class ColumnCustomDialog extends JDialog {
 				toListModel.insertElementAt(toListModel.remove(toIndex), newToIndex);
 				toList.setSelectedIndex(newToIndex);
 			}
-		});
+		});	
+		// - 最終ボタン
 		tailButton.addActionListener(e ->{
 			int toIndex = toList.getSelectedIndex();
 			if (toIndex != -1) {
@@ -182,13 +184,16 @@ public class ColumnCustomDialog extends JDialog {
 				toList.setSelectedIndex(toList.getLastVisibleIndex());
 			}
 		});
+		// - 適用ボタン
 		applyButton.addActionListener(e -> {
 			columns.clear();
 			columns.addAll(Collections.list(toListModel.elements()));
 			setVisible(false);
 			returnValue = JOptionPane.OK_OPTION;
 		});
+		// - キャンセルボタン
 		cancelButton.addActionListener(e -> setVisible(false));
+		
 		pack();
 		setModal(true);
 	}
