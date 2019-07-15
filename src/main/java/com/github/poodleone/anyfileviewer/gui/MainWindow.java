@@ -255,8 +255,8 @@ public class MainWindow extends JFrame {
 		filterModeCheckBoxMenuItem.setToolTipText("高度なフィルタ(式を使用できるフィルタ)を有効にする。");
 		filterMenu.add(GUIUtils.newJMenuItem("このフィルタを保存する", e -> saveFilter()));
 		filterMenu.add(GUIUtils.newJMenuItem("このフィルタを削除する", e -> removeFilter()));
-		filterMenu.add(GUIUtils.newJMenuItem("フィルタの式をテスト", e -> showExpressionTestDialog()));
 		filterMenu.add(filterModeCheckBoxMenuItem);
+		filterMenu.add(GUIUtils.newJMenuItem("フィルタの式をテスト", e -> showExpressionTestDialog()));
 		filterMenuButton.setComponentPopupMenu(filterMenu);
 		filterMenuButton.addActionListener(e -> filterMenu.show(filterMenuButton, 0, filterMenuButton.getHeight()));
 
