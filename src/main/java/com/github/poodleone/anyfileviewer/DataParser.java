@@ -16,6 +16,7 @@ import com.github.poodleone.anyfileviewer.itemdefinition.InnerItemDefinition;
 import com.github.poodleone.anyfileviewer.itemdefinition.ItemDefinition;
 import com.github.poodleone.anyfileviewer.itemdefinition.ItemGroupDefinition;
 import com.github.poodleone.anyfileviewer.itemdefinition.ItemGroupDefinition.ConditionType;
+import com.github.poodleone.anyfileviewer.itemdefinition.MetaItemDefinition;
 import com.github.poodleone.anyfileviewer.record.RecordItemImpl;
 import com.github.poodleone.anyfileviewer.record.Record;
 import com.github.poodleone.anyfileviewer.record.RecordExpressionItem;
@@ -35,7 +36,7 @@ public class DataParser {
 		scope = cx.initStandardObjects();
 		Context.exit();
 	}
-	
+
 	/**
 	 * スクリプトを読み込みます.
 	 * 
@@ -50,7 +51,7 @@ public class DataParser {
 			Context.exit();
 		}
 	}
-	
+
 	/**
 	 * レコードをパースします.
 	 * 
@@ -108,11 +109,18 @@ public class DataParser {
 				}
 				isAdded = parseItems(name, child, record, parserStatus);
 			}
+		} else if (itemDefinition instanceof MetaItemDefinition) {
+			// meta項目の場合、レコードに内部処理用項目を追加
+			String name = itemDefinition.getName();
+			record.getMetaItems().put(name,
+					new RecordExpressionItem(record, ((MetaItemDefinition) itemDefinition).getValueExpression()));
+
 		} else if (itemDefinition instanceof InnerItemDefinition) {
 			// hidden項目の場合、レコードに内部処理用項目を追加
 			String name = itemDefinition.getName();
-			record.getInnerItems().put(name, new RecordItemImpl(record, itemDefinition, 0));
-			
+			record.getInnerItems().put(name,
+					new RecordExpressionItem(record, ((InnerItemDefinition) itemDefinition).getValueExpression()));
+
 		} else {
 			// 項目の場合、レコードに項目を追加
 			String name = groupName + "." + itemDefinition.getName();
@@ -191,6 +199,7 @@ public class DataParser {
 		}
 
 	}
+
 	private static class ParserStatus {
 		public int offset = 0;
 

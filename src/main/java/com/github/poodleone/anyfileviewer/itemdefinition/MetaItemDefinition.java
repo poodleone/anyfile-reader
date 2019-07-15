@@ -7,10 +7,10 @@ import com.github.poodleone.anyfileviewer.DataParser;
 import com.github.poodleone.anyfileviewer.record.Record;
 
 /**
- * 内部処理用のレコード項目の定義です.<br>
+ * メタデータ用のレコード項目の定義です.<br>
  * 式の評価結果を項目の値に使用します.
  */
-public class InnerItemDefinition implements ItemDefinition {
+public class MetaItemDefinition implements ItemDefinition {
 	/** 項目名. */
 	private String name;
 
@@ -23,7 +23,7 @@ public class InnerItemDefinition implements ItemDefinition {
 	 * @param name             項目名
 	 * @param valueExpression  項目値の計算式
 	 */
-	public InnerItemDefinition(String name, String valueExpression) {
+	public MetaItemDefinition(String name, String valueExpression) {
 		this.name = name;
 		this.valueExpression = valueExpression;
 	}
@@ -52,7 +52,7 @@ public class InnerItemDefinition implements ItemDefinition {
 	public List<ItemDefinition> getChildren() {
 		return Collections.emptyList();
 	}
-
+	
 	/**
 	 * @return 項目の値の算出式
 	 */

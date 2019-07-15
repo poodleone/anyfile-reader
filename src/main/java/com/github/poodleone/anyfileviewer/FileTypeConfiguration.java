@@ -31,6 +31,7 @@ import com.github.poodleone.anyfileviewer.itemdefinition.ItemDefinition;
 import com.github.poodleone.anyfileviewer.itemdefinition.ItemGroupDefinition;
 import com.github.poodleone.anyfileviewer.itemdefinition.StringItemDefinition;
 import com.github.poodleone.anyfileviewer.itemdefinition.ItemGroupDefinition.ConditionType;
+import com.github.poodleone.anyfileviewer.itemdefinition.MetaItemDefinition;
 
 /**
  * ファイル種類の設定を管理するクラス.
@@ -269,6 +270,15 @@ public class FileTypeConfiguration {
 					String valueExpression = get(tmp, 2);
 					target.add(new HexItemDefinition(name, lengthExpression, valueExpression));
 
+				} else if (type.equals("meta")) {
+					String[] tmp = values[1].split(CSV_SEPARATOR);
+					Validate.isTrue(tmp.length == 2,
+							() -> new InvalidFileTypeConfigurationException(path, keyValue.key, "形式が不正です。項目タイプmetaの場合、項目名、項目値の算出式の指定が必要です。"));
+					
+					String name = get(tmp, 0);
+					String valueExpression = get(tmp, 1);
+					target.add(new MetaItemDefinition(name, valueExpression));
+
 				} else if (type.equals("hidden")) {
 					String[] tmp = values[1].split(CSV_SEPARATOR);
 					Validate.isTrue(tmp.length == 2,
@@ -280,7 +290,7 @@ public class FileTypeConfiguration {
 
 				} else {
 					throw new InvalidFileTypeConfigurationException(path, keyValue.key,
-							"形式が不正です。項目タイプはgroup,string,hex,hiddenのいずれかを指定してください。");
+							"形式が不正です。項目タイプはgroup,string,hex,meta,hiddenのいずれかを指定してください。");
 				}
 			}
 		}
