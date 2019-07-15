@@ -206,7 +206,7 @@ public class MainWindow extends JFrame {
 		header1.add(new JLabel("ファイルの種類:"));
 		header1.add(fileTypeCombo);
 
-		// - ヘッダ1
+		// - ヘッダ2
 		JPanel header2 = new JPanel();
 		header2.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
 		header2.add(new JLabel("表示行数:"));
@@ -221,21 +221,23 @@ public class MainWindow extends JFrame {
 		header2.add(nextButton);
 		header2.add(tailButton);
 
-		// -
+		// - ヘッダ3
+		JPanel header3 = new JPanel();
+		header3.setLayout(new BoxLayout(header3, BoxLayout.X_AXIS));
+		header3.add(new JLabel("フィルタ:"));
+		header3.add(filterText);
+		header3.add(filterMenuButton);
+
+		// - 
 		JPanel headers = new JPanel();
 		headers.setLayout(new BoxLayout(headers, BoxLayout.Y_AXIS));
 		headers.add(header1);
 		headers.add(header2);
+		headers.add(header3);
 		headers.setBorder(new EmptyBorder(5, 5, 5, 5));
-		getContentPane().add(headers, BorderLayout.NORTH);
 
-		// - フィルタ
-		JPanel body = new JPanel();
-		body.setLayout(new BoxLayout(body, BoxLayout.X_AXIS));
-		body.add(new JLabel("フィルタ:"));
-		body.add(filterText);
-		body.add(filterMenuButton);
-		getContentPane().add(body, BorderLayout.CENTER);
+		// -
+		getContentPane().add(headers, BorderLayout.NORTH);
 
 		filterModeCheckBoxMenuItem.setToolTipText("高度なフィルタ(式を使用できるフィルタ)を有効にする。");
 		filterMenu.add(GUIUtils.newJMenuItem("このフィルタを保存する", e -> saveFilter()));
@@ -247,7 +249,7 @@ public class MainWindow extends JFrame {
 		// テーブル初期化
 		table = new JTable(tableModel);
 		table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-		getContentPane().add(new JScrollPane(table), BorderLayout.SOUTH);
+		getContentPane().add(new JScrollPane(table), BorderLayout.CENTER);
 
 		// - テーブルのフィルタ/ソート設定
 		sorter = new TableRowSorter<>(tableModel);
