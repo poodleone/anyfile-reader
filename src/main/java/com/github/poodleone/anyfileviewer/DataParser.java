@@ -12,6 +12,7 @@ import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
 
 import com.github.poodleone.anyfileviewer.itemdefinition.HexItemDefinition;
+import com.github.poodleone.anyfileviewer.itemdefinition.InnerItemDefinition;
 import com.github.poodleone.anyfileviewer.itemdefinition.ItemDefinition;
 import com.github.poodleone.anyfileviewer.itemdefinition.ItemGroupDefinition;
 import com.github.poodleone.anyfileviewer.itemdefinition.ItemGroupDefinition.ConditionType;
@@ -107,6 +108,11 @@ public class DataParser {
 				}
 				isAdded = parseItems(name, child, record, parserStatus);
 			}
+		} else if (itemDefinition instanceof InnerItemDefinition) {
+			// hidden項目の場合、レコードに内部処理用項目を追加
+			String name = itemDefinition.getName();
+			record.getInnerItems().put(name, new RecordItemImpl(record, itemDefinition, 0));
+			
 		} else {
 			// 項目の場合、レコードに項目を追加
 			String name = groupName + "." + itemDefinition.getName();
