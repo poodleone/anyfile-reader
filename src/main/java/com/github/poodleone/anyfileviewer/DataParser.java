@@ -5,6 +5,7 @@ import java.io.Reader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Optional;
 
 import org.mozilla.javascript.Context;
@@ -18,6 +19,7 @@ import com.github.poodleone.anyfileviewer.itemdefinition.ItemGroupDefinition;
 import com.github.poodleone.anyfileviewer.itemdefinition.ItemGroupDefinition.ConditionType;
 import com.github.poodleone.anyfileviewer.itemdefinition.MetaItemDefinition;
 import com.github.poodleone.anyfileviewer.record.RecordItemImpl;
+import com.github.poodleone.anyfileviewer.record.RecordSet;
 import com.github.poodleone.anyfileviewer.record.Record;
 import com.github.poodleone.anyfileviewer.record.RecordExpressionItem;
 
@@ -128,6 +130,24 @@ public class DataParser {
 			parserStatus.offset += itemDefinition.getLength(record, parserStatus.offset);
 		}
 		return true;
+	}
+
+	/**
+	 * メタデータ項目の追加・削除を行います.
+	 * 
+	 * @param records 対象レコードセット
+	 * @param additionalItems   新しいメタデータ項目のリスト
+	 */
+	public static void updateMetaItems(RecordSet records, List<MetaItemDefinition> additionalItems) {
+		for (Record record : records) {
+			record.getMetaItems().entrySet().removeIf(e -> {
+				return e.getValue() instanceof RecordExpressionItem
+						&& ((RecordExpressionItem) e.getValue()).isRemovable();
+			});
+			additionalItems.forEach(e -> {
+				record.getMetaItems().put(e.getName(), new RecordExpressionItem(record, e.getValueExpression(), true));
+			});
+		}
 	}
 
 	/**

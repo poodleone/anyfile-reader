@@ -3,6 +3,7 @@ package com.github.poodleone.anyfileviewer.gui;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.Point;
@@ -15,7 +16,6 @@ import java.awt.event.WindowFocusListener;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
-
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.BoxLayout;
@@ -45,6 +45,7 @@ import com.github.poodleone.anyfileviewer.FileTypeConfiguration;
 import com.github.poodleone.anyfileviewer.RecordFormat;
 import com.github.poodleone.anyfileviewer.DataParser;
 import com.github.poodleone.anyfileviewer.gui.GUIConfiguration.Booleans;
+import com.github.poodleone.anyfileviewer.itemdefinition.MetaItemDefinition;
 import com.github.poodleone.anyfileviewer.record.Record;
 import com.github.poodleone.anyfileviewer.record.RecordSet;
 import com.github.poodleone.anyfileviewer.utils.AutoFitTableHeader;
@@ -168,6 +169,7 @@ public class MainWindow extends JFrame {
 		Arrays.stream(table.getSelectedRows()).forEach(index -> showDetailWindow(index));
 	}
 	
+	List<MetaItemDefinition> additionalItems = GUIConfiguration.getInstance().getAdditionalItems();
 	private void showColumnCustomDialog() {
 		Record record = null;
 		int selectedRow = table.getSelectedRow();
@@ -176,7 +178,10 @@ public class MainWindow extends JFrame {
 		} else if (!records.isEmpty()) {
 			record = records.get(0);
 		}
-		if (new ColumnCustomDialog(config, tableModel.columnNames, record).showDialog() == JOptionPane.OK_OPTION) {
+		
+		if (new ColumnCustomDialog(config, tableModel.columnNames, record, additionalItems).showDialog() == JOptionPane.OK_OPTION) {
+			DataParser.updateMetaItems(records, additionalItems.stream()
+					.filter(e -> tableModel.columnNames.contains(e.getName())).collect(Collectors.toList()));
 			tableModel.fireTableStructureChanged();
 			tableHeader.sizeWidthToFitData();
 		}

@@ -18,6 +18,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
+import com.github.poodleone.anyfileviewer.itemdefinition.MetaItemDefinition;
+
 /**
  * GUIの設定を管理するクラス.
  *
@@ -26,6 +28,7 @@ public class GUIConfiguration {
 	private static GUIConfiguration instance = new GUIConfiguration();
 	private List<Path> recentlyUsedFiles = new ArrayList<>(17);
 	private List<String> filters = new ArrayList<>();
+	private List<MetaItemDefinition> additionalItems = new ArrayList<>();
 	private Map<Booleans, Boolean> booleansMap = new EnumMap<>(Booleans.class);
 	private Path path = Paths.get("gui.properties");
 
@@ -94,6 +97,15 @@ public class GUIConfiguration {
 	}
 
 	/**
+	 * 保存された追加項目のリストを取得します.
+	 * 
+	 * @return 追加項目のリスト
+	 */
+	public List<MetaItemDefinition> getAdditionalItems() {
+		return additionalItems;
+	}
+	
+	/**
 	 * boolean型のプロパティを取得します.
 	 * 
 	 * @param key プロパティキー
@@ -120,12 +132,16 @@ public class GUIConfiguration {
 		Properties properties = loadProperties();
 
 		// 最近使用したファイル
-		getValues(properties, "(?<group>)(?<name>recentlyUsedFiles\\d+)").forEach(keyValue -> {
+		getValues(properties, "(?<group>recentlyUsedFiles)\\d+(?<name>)").forEach(keyValue -> {
 			recentlyUsedFiles.add(Paths.get(keyValue.value));
 		});
 		// フィルタ
-		getValues(properties, "(?<group>)(?<name>filters\\d+)").forEach(keyValue -> {
+		getValues(properties, "(?<group>filters)\\d+(?<name>)").forEach(keyValue -> {
 			filters.add(keyValue.value);
+		});
+		// 追加項目
+		getValues(properties, "(?<group>additionalItems)\\d+\\.(?<name>.+)").forEach(keyValue -> {
+			additionalItems.add(new MetaItemDefinition(keyValue.keyName, keyValue.value));
 		});
 		// boolean型プロパティ
 		Arrays.stream(Booleans.values()).forEach(key -> {
@@ -137,7 +153,7 @@ public class GUIConfiguration {
 	 * GUIの設定を保存します.
 	 */
 	public void save() {
-		Properties properties = loadProperties();
+		Properties properties = new Properties();
 
 		AtomicInteger i = new AtomicInteger();
 		// 最近使用したファイル
@@ -146,6 +162,10 @@ public class GUIConfiguration {
 		i.set(0);
 		// フィルタ
 		filters.forEach(e -> properties.setProperty(String.format("filters%04d", i.getAndIncrement()), e.toString()));
+		i.set(0);
+		// 追加項目
+		additionalItems.forEach(e -> properties.setProperty(
+				String.format("additionalItems%04d.%s", i.getAndIncrement(), e.getName()), e.getValueExpression()));
 		i.set(0);
 		// boolean型プロパティ
 		Arrays.stream(Booleans.values()).forEach(key -> {
