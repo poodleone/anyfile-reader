@@ -62,17 +62,19 @@ public class DataParser {
 	 */
 	public static void parseRecord(Record record, RecordFormat format) {
 		try {
-			Optional<ItemGroupDefinition> definitions = format.getDumpLayoutDefinitions().stream() //
-					.filter(e -> evalAsBoolean(record, e.getCondition())).findFirst();
-			if (definitions.isPresent()) {
-				ParserStatus parserStatus = new ParserStatus();
-				parseItems("", definitions.get(), record, parserStatus);
-				if (parserStatus.offset < record.getLength()) {
-					record.getItems().put(paddingDefinition.getName(),
-							new RecordItemImpl(record, paddingDefinition, parserStatus.offset));
+			if (!format.getDumpLayoutDefinitions().isEmpty()) {
+				Optional<ItemGroupDefinition> definitions = format.getDumpLayoutDefinitions().stream() //
+						.filter(e -> evalAsBoolean(record, e.getCondition())).findFirst();
+				if (definitions.isPresent()) {
+					ParserStatus parserStatus = new ParserStatus();
+					parseItems("", definitions.get(), record, parserStatus);
+					if (parserStatus.offset < record.getLength()) {
+						record.getItems().put(paddingDefinition.getName(),
+								new RecordItemImpl(record, paddingDefinition, parserStatus.offset));
+					}
+				} else {
+					record.getMetaItems().put("[エラー]", "不明なレコード形式(適用可能なdumpLayoutsが見つからない)");
 				}
-			} else {
-				record.getMetaItems().put("[エラー]", "不明なレコード形式(適用可能なdumpLayoutsが見つからない)");
 			}
 
 			format.getMetaItemExpressions().entrySet().forEach(e -> {
