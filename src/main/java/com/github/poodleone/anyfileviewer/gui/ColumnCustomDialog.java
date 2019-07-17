@@ -23,6 +23,8 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 import com.github.poodleone.anyfileviewer.FileTypeConfiguration;
@@ -47,8 +49,8 @@ public class ColumnCustomDialog extends JDialog {
 	private JButton downButton = new JButton("下へ");
 	private JButton tailButton = new JButton("最終");
 
-	private JTextField itemNameText = new JTextField("");
-	private JTextField itemExpressionText = new JTextField("");
+	private JTextField itemNameText = new JTextField();
+	private JTextArea itemExpressionText = new JTextArea(10, 80);
 	private JButton newItemButton = new JButton("項目作成/変更");
 
 	private JButton applyButton = new JButton("適用");
@@ -74,8 +76,9 @@ public class ColumnCustomDialog extends JDialog {
 		// コントロールを配置
 		panel.setLayout(gbl);
 
-		addComponent(fromList, 0, 0, 2, 5, 1.0d, 1.0d, GridBagConstraints.BOTH);
-		addComponent(toList, 3, 0, 1, 5, 1.0d, 1.0d, GridBagConstraints.BOTH);
+		addComponent(new JScrollPane(fromList), 0, 0, 2, 5, 1.0d, 1.0d, GridBagConstraints.BOTH);
+		addComponent(new JScrollPane(toList), 3, 0, 1, 5, 1.0d, 1.0d, GridBagConstraints.BOTH);
+		addComponent(Box.createVerticalStrut(100), 4, 4, 1, 1, 0.0d, 0.0d, GridBagConstraints.HORIZONTAL);
 
 		addComponent(insertButton, 2, 0, 1, 1, 0.0d, 0.0d, GridBagConstraints.HORIZONTAL);
 		addComponent(removeButton, 2, 1, 1, 1, 0.0d, 0.0d, GridBagConstraints.HORIZONTAL);
@@ -86,20 +89,19 @@ public class ColumnCustomDialog extends JDialog {
 		addComponent(upButton, 4, 1, 1, 1, 0.0d, 0.0d, GridBagConstraints.HORIZONTAL);
 		addComponent(downButton, 4, 2, 1, 1, 0.0d, 0.0d, GridBagConstraints.HORIZONTAL);
 		addComponent(tailButton, 4, 3, 1, 1, 0.0d, 0.0d, GridBagConstraints.HORIZONTAL);
-		addComponent(Box.createVerticalStrut(300), 4, 4, 1, 1, 0.0d, 0.0d, GridBagConstraints.HORIZONTAL);
 
-		addComponent(Box.createHorizontalStrut(300), 0, 5, 2, 1, 0.0d, 0.0d, GridBagConstraints.HORIZONTAL);
-		addComponent(Box.createHorizontalStrut(300), 3, 5, 1, 1, 0.0d, 0.0d, GridBagConstraints.HORIZONTAL);
+		addComponent(Box.createHorizontalStrut(350), 0, 5, 2, 1, 0.0d, 0.0d, GridBagConstraints.HORIZONTAL);
+		addComponent(Box.createHorizontalStrut(350), 3, 5, 1, 1, 0.0d, 0.0d, GridBagConstraints.HORIZONTAL);
 
 		addComponent(Box.createVerticalStrut(10), 0, 6, 4, 1, 0.0d, 0.0d, GridBagConstraints.NONE,
 				GridBagConstraints.WEST);
 		addComponent(new JLabel("名前:"), 0, 7, 1, 1, 0.0d, 0.0d, GridBagConstraints.NONE, GridBagConstraints.EAST);
 		addComponent(itemNameText, 1, 7, 1, 1, 0.0d, 0.0d, GridBagConstraints.HORIZONTAL);
-		addComponent(new JLabel("式:"), 0, 8, 1, 1, 0.0d, 0.0d, GridBagConstraints.NONE, GridBagConstraints.EAST);
-		addComponent(itemExpressionText, 1, 8, 3, 1, 0.0d, 0.0d, GridBagConstraints.HORIZONTAL);
-		addComponent(newItemButton, 4, 8, 1, 1, 0.0d, 0.0d, GridBagConstraints.HORIZONTAL);
+		addComponent(new JLabel("式:"), 0, 8, 1, 1, 0.0d, 0.0d, GridBagConstraints.NONE, GridBagConstraints.NORTHEAST);
+		addComponent(new JScrollPane(itemExpressionText), 1, 8, 4, 1, 0.0d, 0.0d, GridBagConstraints.BOTH);
+		addComponent(newItemButton, 3, 9, 2, 1, 0.0d, 0.0d, GridBagConstraints.NONE, GridBagConstraints.EAST);
 
-		addComponent(Box.createVerticalStrut(10), 0, 9, 4, 1, 0.0d, 0.0d, GridBagConstraints.NONE,
+		addComponent(Box.createVerticalStrut(10), 0, 10, 4, 1, 0.0d, 0.0d, GridBagConstraints.NONE,
 				GridBagConstraints.WEST);
 		JPanel bottom = new JPanel();
 		bottom.setLayout(new BoxLayout(bottom, BoxLayout.X_AXIS));
@@ -108,7 +110,7 @@ public class ColumnCustomDialog extends JDialog {
 		bottom.setAlignmentX(Component.LEFT_ALIGNMENT);
 		applyButton.setAlignmentX(Component.RIGHT_ALIGNMENT);
 		cancelButton.setAlignmentX(Component.RIGHT_ALIGNMENT);
-		addComponent(bottom, 0, 10, 5, 1, 0.0d, 0.0d, GridBagConstraints.NONE, GridBagConstraints.EAST);
+		addComponent(bottom, 0, 11, 5, 1, 0.0d, 0.0d, GridBagConstraints.NONE, GridBagConstraints.EAST);
 
 		panel.setBorder(new EmptyBorder(5, 5, 5, 5));
 		getContentPane().add(panel, BorderLayout.CENTER);
