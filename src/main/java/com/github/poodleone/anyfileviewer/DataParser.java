@@ -127,7 +127,7 @@ public class DataParser {
 
 		} else {
 			// 項目の場合、レコードに項目を追加
-			String name = groupName + "." + itemDefinition.getName();
+			String name = groupName.isEmpty() ? itemDefinition.getName() : groupName + "." + itemDefinition.getName();
 			record.getItems().put(name, new RecordItemImpl(record, itemDefinition, parserStatus.offset));
 			parserStatus.offset += itemDefinition.getLength(record, parserStatus.offset);
 		}
