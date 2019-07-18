@@ -379,9 +379,9 @@ public class MainWindow extends JFrame {
 	private void updatePage(int add) {
 		int recordOffset;
 		if (add == Integer.MAX_VALUE) {
-			recordOffset = -1;
-		} else if (add == Integer.MIN_VALUE) {
 			recordOffset = 0;
+		} else if (add == Integer.MIN_VALUE) {
+			recordOffset = 1;
 		} else {
 			try {
 				recordOffset = Integer.valueOf(offsetFromText.getText()) + add;
