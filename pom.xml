@@ -34,6 +34,9 @@
             <manifest>
               <mainClass>com.github.poodleone.anyfileviewer.Main</mainClass>
             </manifest>
+            <manifestEntries>
+              <Class-Path>.</Class-Path>
+            </manifestEntries>
           </archive>
         </configuration>
       </plugin>
