@@ -44,8 +44,8 @@ public class FixedBytesReader implements RecordReader {
 	@Override
 	public RecordSet load(Path path, RecordFormat format, int offset, int maxRecords) {
 		int recordSize = getRecordSize(format);
-		byte[] buffer = new byte[recordSize];
 		try {
+			byte[] buffer = new byte[recordSize];
 			long size = Files.size(path);
 			if (offset == -1 || size < offset * recordSize) {
 				// offsetが-1かファイルの範囲外の場合はファイル末尾まで読むように調整
@@ -84,7 +84,7 @@ public class FixedBytesReader implements RecordReader {
 
 	protected Record readRecord(byte[] data, RecordFormat format) {
 		// レコード生成
-		Record record = new AbstractRecord(data) {
+		Record record = new AbstractRecord(data.clone()) {
 			@Override
 			public int getLength() {
 				return ((byte[]) getRawData()).length;
