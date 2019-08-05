@@ -91,15 +91,21 @@ public class MainWindow extends JFrame {
 	 */
 	public MainWindow() {
 		super();
-		Thread.setDefaultUncaughtExceptionHandler((t, e) -> {
+		try {
+			setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+			initialize();
+			pack();
+	
+			updatePropertiesSelectorMenu();
+			Thread.setDefaultUncaughtExceptionHandler((t, e) -> {
+				GUIUtils.showMessageDialog(this, "AnyfileViewer", "例外が発生しました。", e);
+				e.printStackTrace();
+			});
+		} catch (Exception e) {
 			GUIUtils.showMessageDialog(this, "AnyfileViewer", "例外が発生しました。", e);
-			e.printStackTrace();
-		});
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		initialize();
-		pack();
+			throw e;
+		}
 
-		updatePropertiesSelectorMenu();
 	}
 
 	private void reloadFile() {
