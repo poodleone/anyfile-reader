@@ -206,7 +206,6 @@ public class DataParser {
 	public static <T> T eval(Record record, String expression, Class<T> returnType, Param... params) {
 		Context cx = Context.enter();
 		try {
-			Scriptable scope = cx.initStandardObjects();
 			ScriptableObject.putProperty(scope, "rec", Context.javaToJS(record, scope));
 			for (Param param : params) {
 				ScriptableObject.putProperty(scope, param.key, Context.javaToJS(param.value, scope));
