@@ -33,7 +33,7 @@ public class ItemGroupDefinition implements ItemDefinition {
 	public ItemGroupDefinition(String groupName, List<ItemDefinition> children, String condition,
 			ConditionType conditionType) {
 		this.groupName = groupName;
-		this.children = Collections.unmodifiableList(children);
+		this.children = children;
 		this.condition = condition;
 		this.conditionType = conditionType;
 	}

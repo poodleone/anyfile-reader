@@ -13,8 +13,10 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -135,6 +137,8 @@ public class FileTypeConfiguration {
 				throw new RuntimeException("fileDefinitionsディレクトリにファイル設定(*.properties)がありません。");
 			}
 			return files;
+		} catch (NullPointerException e) {
+			throw new RuntimeException("fileDefinitionsディレクトリが見つかりません。", e);
 		} catch (IOException | URISyntaxException e) {
 			throw new AssertionError(e);
 		}
@@ -195,46 +199,43 @@ public class FileTypeConfiguration {
 		String groupName = getStringValue(path, properties, "name", "");
 		String condition = getStringValue(path, properties, "condition", null);
 
-		List<ItemDefinition> children = new ArrayList<>();
-		List<ItemDefinition> subGroup = null;
-		ConditionType conditionType = null;
-		String subGroupCondition = null;
+		Deque<Pair> stack = new LinkedList<>();
+		stack.addLast(new Pair("", new ItemGroupDefinition(groupName, new ArrayList<>(), condition, null)));
+
 		for (GroupedKeyValue keyValue : getValues(properties, "(?<group>item\\d+)(?<name>)")
 				.collect(Collectors.toList())) {
 			if (keyValue.value.matches("^if\\b.*")) {
-				subGroup = new ArrayList<>();
-				subGroupCondition = keyValue.value.substring(2);
-				conditionType = ConditionType.IF;
+				String subGroupCondition = keyValue.value.substring(2);
+				stack.addLast(new Pair(keyValue.key, new ItemGroupDefinition("", new ArrayList<>(), subGroupCondition, ConditionType.IF)));
 
-			} else if (keyValue.value.matches("elsif\\b")) {
-				Validate.notNull(conditionType,
+			} else if (keyValue.value.matches("elsif\\b.*")) {
+				Validate.notNull(stack.peekLast().itemDefinition.getConditionType(),
 						() -> new InvalidFileTypeConfigurationException(path, keyValue.key, "elsifに対応するifが見つかりません。"));
 
-				children.add(new ItemGroupDefinition("", subGroup, subGroupCondition, conditionType));
-				subGroup = new ArrayList<>();
-				subGroupCondition = keyValue.value.substring(5);
-				conditionType = ConditionType.ELSIF;
+				ItemGroupDefinition prevGroup = stack.removeLast().itemDefinition;
+				stack.getLast().itemDefinition.getChildren().add(prevGroup);
+				
+				String subGroupCondition = keyValue.value.substring(5);
+				stack.addLast(new Pair(keyValue.key, new ItemGroupDefinition("", new ArrayList<>(), subGroupCondition, ConditionType.ELSIF)));
 
 			} else if (keyValue.value.matches("else\\b.*")) {
-				Validate.notNull(conditionType,
+				Validate.notNull(stack.peekLast().itemDefinition.getConditionType(),
 						() -> new InvalidFileTypeConfigurationException(path, keyValue.key, "elseに対応するifが見つかりません。"));
 
-				children.add(new ItemGroupDefinition("", subGroup, subGroupCondition, conditionType));
-				subGroup = new ArrayList<>();
-				subGroupCondition = null;
-				conditionType = ConditionType.ELSE;
+				ItemGroupDefinition prevGroup = stack.removeLast().itemDefinition;
+				stack.getLast().itemDefinition.getChildren().add(prevGroup);
+
+				stack.addLast(new Pair(keyValue.key, new ItemGroupDefinition("", new ArrayList<>(), null, ConditionType.ELSE)));
 
 			} else if (keyValue.value.matches("endif\\b.*")) {
-				Validate.notNull(conditionType,
+				Validate.notNull(stack.peekLast().itemDefinition.getConditionType(),
 						() -> new InvalidFileTypeConfigurationException(path, keyValue.key, "endifに対応するifが見つかりません。"));
 
-				children.add(new ItemGroupDefinition("", subGroup, subGroupCondition, conditionType));
-				subGroup = null;
-				subGroupCondition = null;
-				conditionType = null;
+				ItemGroupDefinition prevGroup = stack.removeLast().itemDefinition;
+				stack.getLast().itemDefinition.getChildren().add(prevGroup);
 
 			} else {
-				List<ItemDefinition> target = subGroup == null ? children : subGroup;
+				List<ItemDefinition> target = stack.getLast().itemDefinition.getChildren();
 
 				String[] values = keyValue.value.split(CSV_SEPARATOR, 2);
 				String type = get(values, 0);
@@ -295,7 +296,9 @@ public class FileTypeConfiguration {
 			}
 		}
 
-		dataGroupDefinitionMap.put(mapKey, new ItemGroupDefinition(groupName, children, condition, null));
+		Validate.isTrue(stack.size() == 1,
+				() -> new InvalidFileTypeConfigurationException(path, stack.getLast().key, "if/elsifに対応するendifが見つかりません。"));
+		dataGroupDefinitionMap.put(mapKey, stack.getLast().itemDefinition);
 	}
 
 	private String get(String[] array, int index) {
@@ -393,5 +396,14 @@ public class FileTypeConfiguration {
 			this(path, propertyKey, message, null);
 		}
 
+	}
+	
+	private class Pair {
+		public String key;
+		public ItemGroupDefinition itemDefinition;
+		public Pair(String key, ItemGroupDefinition itemDefinition) {
+			this.key = key;
+			this.itemDefinition = itemDefinition;
+		}
 	}
 }
