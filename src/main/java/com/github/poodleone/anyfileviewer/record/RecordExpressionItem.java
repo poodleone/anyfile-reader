@@ -18,6 +18,9 @@ public class RecordExpressionItem {
 	/** 項目を削除可能かどうか. */
 	private boolean isRemovable;
 
+	/** 値のキャッシュ */
+	private String valueCache;
+	
 	/**
 	 * 式で評価する項目を生成します.
 	 * 
@@ -35,7 +38,10 @@ public class RecordExpressionItem {
 
 	@Override
 	public String toString() {
-		return DataParser.eval(record, valueExpression, new DataParser.Param("offset", offset));
+		if (valueCache == null) {
+			valueCache = DataParser.eval(record, valueExpression, new DataParser.Param("offset", offset));
+		}
+		return valueCache;
 	}
 	
 	/**
