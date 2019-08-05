@@ -50,7 +50,7 @@ public class StringItemDefinition extends AbstractItemDefinition {
 			return value;
 		} else {
 			try {
-				return DataParser.eval(record, valueExpression, new DataParser.Param("value", value));
+				return DataParser.eval(record, valueExpression, new DataParser.Param("value", value), new DataParser.Param("offset", offset));
 			} catch (RuntimeException e) {
 				record.getMetaItems().put("[項目値の計算エラー: " + getName() + "]",
 						"計算元値: " + value + ", エラー内容: " + e.toString());

@@ -53,7 +53,7 @@ public abstract class AbstractItemDefinition implements ItemDefinition {
 		} else {
 			// 可変長の場合
 			try {
-				return Integer.parseInt(DataParser.eval(record, lengthExpression));
+				return Integer.parseInt(DataParser.eval(record, lengthExpression, new DataParser.Param("offset", offset)));
 			} catch (RuntimeException e) {
 				record.getMetaItems().put("[項目長の計算エラー: " + getName() + "]", e.toString());
 				return 0;
