@@ -5,8 +5,11 @@ import java.io.Reader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Scriptable;
@@ -94,6 +97,10 @@ public class DataParser {
 					new Param("offset", parserStatus.offset))) {
 				return false;
 			}
+			
+			int sameGroupCount = parserStatus.groupNameMap.computeIfAbsent(groupName, (k) -> new AtomicInteger())
+					.getAndIncrement();
+			groupName = groupName.isEmpty() || 0 == sameGroupCount ? groupName : groupName + "(" + (sameGroupCount + 1) + ")";
 			boolean isAdded = false;
 			for (ItemDefinition child : itemDefinition.getChildren()) {
 				if (child instanceof ItemGroupDefinition) {
@@ -129,6 +136,11 @@ public class DataParser {
 		} else {
 			// 項目の場合、レコードに項目を追加
 			String name = groupName.isEmpty() ? itemDefinition.getName() : groupName + "." + itemDefinition.getName();
+
+			int sameItemCount = parserStatus.itemNameMap.computeIfAbsent(name, (k) -> new AtomicInteger())
+					.getAndIncrement();
+			name = name.isEmpty() || 0 == sameItemCount ? name : name + "(" + (sameItemCount + 1) + ")";
+			
 			record.getItems().put(name, new RecordItemImpl(record, itemDefinition, parserStatus.offset));
 			parserStatus.offset += itemDefinition.getLength(record, parserStatus.offset);
 		}
@@ -224,6 +236,8 @@ public class DataParser {
 
 	private static class ParserStatus {
 		public int offset = 0;
+		public Map<String, AtomicInteger> groupNameMap = new HashMap<>();
+		public Map<String, AtomicInteger> itemNameMap = new HashMap<>();
 	}
 
 	/**
