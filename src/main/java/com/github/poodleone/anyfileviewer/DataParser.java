@@ -78,7 +78,7 @@ public class DataParser {
 			}
 
 			format.getMetaItemExpressions().entrySet().forEach(e -> {
-				record.getMetaItems().put(e.getKey(), new RecordExpressionItem(record, e.getValue()));
+				record.getMetaItems().put(e.getKey(), new RecordExpressionItem(record, e.getValue(), 0, false));
 			});
 		} catch (RuntimeException e) {
 			throw new RuntimeException(e);
@@ -90,7 +90,8 @@ public class DataParser {
 
 		if (itemDefinition instanceof ItemGroupDefinition) {
 			// グループの場合、条件を評価して子項目のパースを行う
-			if (!evalAsBoolean(record, ((ItemGroupDefinition) itemDefinition).getCondition())) {
+			if (!evalAsBoolean(record, ((ItemGroupDefinition) itemDefinition).getCondition(),
+					new Param("offset", parserStatus.offset))) {
 				return false;
 			}
 			boolean isAdded = false;
@@ -117,13 +118,13 @@ public class DataParser {
 			// meta項目の場合、レコードに内部処理用項目を追加
 			String name = itemDefinition.getName();
 			record.getMetaItems().put(name,
-					new RecordExpressionItem(record, ((MetaItemDefinition) itemDefinition).getValueExpression()));
+					new RecordExpressionItem(record, ((MetaItemDefinition) itemDefinition).getValueExpression(), parserStatus.offset, false));
 
 		} else if (itemDefinition instanceof InnerItemDefinition) {
 			// hidden項目の場合、レコードに内部処理用項目を追加
 			String name = itemDefinition.getName();
 			record.getInnerItems().put(name,
-					new RecordExpressionItem(record, ((InnerItemDefinition) itemDefinition).getValueExpression()));
+					new RecordExpressionItem(record, ((InnerItemDefinition) itemDefinition).getValueExpression(), parserStatus.offset, false));
 
 		} else {
 			// 項目の場合、レコードに項目を追加
@@ -147,7 +148,7 @@ public class DataParser {
 						&& ((RecordExpressionItem) e.getValue()).isRemovable();
 			});
 			additionalItems.forEach(e -> {
-				record.getMetaItems().put(e.getName(), new RecordExpressionItem(record, e.getValueExpression(), true));
+				record.getMetaItems().put(e.getName(), new RecordExpressionItem(record, e.getValueExpression(), 0, true));
 			});
 		}
 	}
@@ -223,10 +224,6 @@ public class DataParser {
 
 	private static class ParserStatus {
 		public int offset = 0;
-
-		public ParserStatus() {
-			offset = 0;
-		}
 	}
 
 	/**
