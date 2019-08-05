@@ -105,7 +105,9 @@ public class DataParser {
 			for (ItemDefinition child : itemDefinition.getChildren()) {
 				if (child instanceof ItemGroupDefinition) {
 					ConditionType type = ((ItemGroupDefinition) child).getConditionType();
-					if (isAdded && (type == ConditionType.ELSIF || type == ConditionType.ELSE)) {
+					if (type == ConditionType.IF) {
+						isAdded = false;
+					} else if (isAdded && (type == ConditionType.ELSIF || type == ConditionType.ELSE)) {
 						// ELSIF/ELSEブロックの場合、前のIF/ELSIFブロックの条件が満たされていたらこのブロックは評価しない
 						continue;
 					}
