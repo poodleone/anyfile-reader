@@ -60,9 +60,14 @@ public class ErrorRecord implements Record {
 	public String getValue(String name) {
 		return metaItemMap.getOrDefault(name, innerItemMap.getOrDefault(name, "")).toString();
 	}
-
+	
 	@Override
 	public String getHexValue(String name) {
+		return "";
+	}
+
+	@Override
+	public String getRawStringValue(String name) {
 		return "";
 	}
 

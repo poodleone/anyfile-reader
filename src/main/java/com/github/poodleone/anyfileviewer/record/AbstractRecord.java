@@ -57,6 +57,12 @@ public abstract class AbstractRecord implements Record {
 	}
 
 	@Override
+	public String getRawStringValue(String name) {
+		Object item = itemMap.get(name);
+		return item instanceof RecordItem ? ((RecordItem) item).toRawString() : "";
+	}
+	
+	@Override
 	public String getHexValue(String name) {
 		Object item = itemMap.get(name);
 		return item instanceof RecordItem ? ((RecordItem) item).toHexString() : "";

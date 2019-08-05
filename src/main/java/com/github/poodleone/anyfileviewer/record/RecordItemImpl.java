@@ -14,6 +14,9 @@ public class RecordItemImpl implements RecordItem {
 
 	/** 項目の開始位置までのオフセット. */
 	private int offset;
+	
+	/** 値のキャッシュ */
+	private String valueCache;
 
 	/**
 	 * レコード項目を生成します.
@@ -50,12 +53,21 @@ public class RecordItemImpl implements RecordItem {
 	}
 
 	@Override
+	public String toString() {
+		if (valueCache == null) {
+			valueCache = itemDefine.toStringValue(record, offset);
+		}
+		return valueCache;
+	}
+	
+	@Override
+	public String toRawString() {
+		return itemDefine.toRawStringValue(record, offset);
+	}
+
+	@Override
 	public String toHexString() {
 		return itemDefine.toHexValue(record, offset);
 	}
 
-	@Override
-	public String toString() {
-		return itemDefine.toStringValue(record, offset);
-	}
 }

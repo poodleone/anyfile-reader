@@ -39,6 +39,11 @@ public class InnerItemDefinition implements ItemDefinition {
 	}
 
 	@Override
+	public String toRawStringValue(Record record, int offset) {
+		return DataParser.eval(record, valueExpression);
+	}
+	
+	@Override
 	public String toStringValue(Record record, int offset) {
 		return DataParser.eval(record, valueExpression);
 	}
@@ -59,4 +64,5 @@ public class InnerItemDefinition implements ItemDefinition {
 	public String getValueExpression() {
 		return valueExpression;
 	}
+
 }

@@ -198,6 +198,7 @@ public class DataParser {
 			}
 			cx.evaluateString(scope, "var $ = function(name) { return rec.getValue(name); }", "", 1, null);
 			cx.evaluateString(scope, "var $hex = function(name) { return rec.getHexValue(name) }", "", 1, null);
+			cx.evaluateString(scope, "var $str = function(name) { return rec.getRawStringValue(name) }", "", 1, null);
 
 			Object result = cx.evaluateString(scope, expression, "", 1, null);
 			return Context.toString(result);

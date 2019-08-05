@@ -5,6 +5,11 @@ package com.github.poodleone.anyfileviewer.record;
  */
 public interface RecordItem {
 	/**
+	 * @return 式評価前の文字列の値
+	 */
+	String toRawString();
+	
+	/**
 	 * @return HEX表記の値
 	 */
 	String toHexString();

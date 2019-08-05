@@ -52,6 +52,14 @@ public class ItemGroupDefinition implements ItemDefinition {
 	}
 
 	/**
+	 * 項目の式評価前の値を文字列で取得します. グループには値はないため、空文字列を返します.
+	 */
+	@Override
+	public String toRawStringValue(Record record, int offset) {
+		return "";
+	}
+	
+	/**
 	 * 項目の値を文字列で取得します. グループには値はないため、空文字列を返します.
 	 */
 	@Override

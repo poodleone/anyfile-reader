@@ -37,7 +37,12 @@ public class MetaItemDefinition implements ItemDefinition {
 	public int getLength(Record record, int offset) {
 		return 0;
 	}
-
+	
+	@Override
+	public String toRawStringValue(Record record, int offset) {
+		return DataParser.eval(record, valueExpression);
+	}
+	
 	@Override
 	public String toStringValue(Record record, int offset) {
 		return DataParser.eval(record, valueExpression);

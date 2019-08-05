@@ -38,6 +38,29 @@ public class StringItemDefinition extends AbstractItemDefinition {
 	public Charset getCharset() {
 		return charset;
 	}
+	
+	@Override
+	public String toRawStringValue(Record record, int offset) {
+		Object rawData = record.getRawData();
+		try {
+			// 項目長を取得
+			int length = getLength(record, offset);
+			int remain = ((byte[]) rawData).length - offset;
+			if (length > remain) {
+				// 長さが足りない場合は補正
+				length = Integer.max(remain, 0);
+			}
+
+			// 項目の値を取得
+			if (rawData instanceof byte[]) {
+				return new String((byte[]) rawData, offset, length, charset);
+			} else {
+				return rawData.toString().substring(offset, offset + length);
+			}
+		} catch (IndexOutOfBoundsException | NullPointerException e) {
+			return "";
+		}
+	}
 
 	/**
 	 * 項目の値を文字列で取得します.<br>
@@ -45,7 +68,7 @@ public class StringItemDefinition extends AbstractItemDefinition {
 	 */
 	@Override
 	public String toStringValue(Record record, int offset) {
-		String value = toStringValueRaw(record, offset);
+		String value = toRawStringValue(record, offset);
 		if (valueExpression == null) {
 			return value;
 		} else {
@@ -66,32 +89,10 @@ public class StringItemDefinition extends AbstractItemDefinition {
 			if (rawData instanceof byte[]) {
 				return ByteUtils.printHexBinary((byte[]) rawData, offset, getLength(record, offset));
 			} else {
-				byte[] bytes = toStringValueRaw(record, offset).getBytes(charset);
+				byte[] bytes = toRawStringValue(record, offset).getBytes(charset);
 				return ByteUtils.printHexBinary(bytes, 0, bytes.length);
 			}
 			// NOTE: printHexBinaryは長さの補正は不要(IndexOutOfBoundsExceptionにならない)
-		} catch (IndexOutOfBoundsException | NullPointerException e) {
-			return "";
-		}
-	}
-
-	private String toStringValueRaw(Record record, int offset) {
-		Object rawData = record.getRawData();
-		try {
-			// 項目長を取得
-			int length = getLength(record, offset);
-			int remain = ((byte[]) rawData).length - offset;
-			if (length > remain) {
-				// 長さが足りない場合は補正
-				length = Integer.max(remain, 0);
-			}
-
-			// 項目の値を取得
-			if (rawData instanceof byte[]) {
-				return new String((byte[]) rawData, offset, length, charset);
-			} else {
-				return rawData.toString().substring(offset, offset + length);
-			}
 		} catch (IndexOutOfBoundsException | NullPointerException e) {
 			return "";
 		}

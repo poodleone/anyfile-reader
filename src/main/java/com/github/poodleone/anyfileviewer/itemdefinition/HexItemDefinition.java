@@ -24,6 +24,11 @@ public class HexItemDefinition extends AbstractItemDefinition {
 		this.valueExpression = valueExpression;
 	}
 
+	@Override
+	public String toRawStringValue(Record record, int offset) {
+		return toHexValue(record, offset);
+	}
+	
 	/**
 	 * 項目の値を文字列で取得します.<br>
 	 * 項目値の計算式が指定されている場合は、式の評価結果を使います. 式内ではレコードの値を{@code value}変数で参照できます.

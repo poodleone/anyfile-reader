@@ -26,13 +26,13 @@ public interface ItemDefinition {
 	int getLength(Record record, int offset);
 
 	/**
-	 * 項目の値を文字列で取得します.
+	 * 項目の式評価前の値を文字列で取得します.
 	 * 
 	 * @param record この項目が含まれるレコード
 	 * @param offset レコードデータ中の項目のオフセット
 	 * @return 項目の値
 	 */
-	String toStringValue(Record record, int offset);
+	String toRawStringValue(Record record, int offset);
 
 	/**
 	 * 項目の値をHEX形式で取得します.
@@ -43,6 +43,15 @@ public interface ItemDefinition {
 	 */
 	String toHexValue(Record record, int offset);
 
+	/**
+	 * 項目の値を式の評価結果で取得します.
+	 * 
+	 * @param record この項目が含まれるレコード
+	 * @param offset レコードデータ中の項目のオフセット
+	 * @return 項目の値
+	 */
+	String toStringValue(Record record, int offset);
+	
 	/**
 	 * 子項目を取得します.
 	 * 

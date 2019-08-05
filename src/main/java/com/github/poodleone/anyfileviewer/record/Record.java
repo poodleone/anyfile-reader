@@ -41,6 +41,14 @@ public interface Record {
 	String getValue(String name);
 
 	/**
+	 * レコードの式評価前の項目の値を取得します.
+	 * 
+	 * @param name 項目名
+	 * @return 項目の値
+	 */
+	String getRawStringValue(String name);
+	
+	/**
 	 * レコードの項目の値をHEX形式で取得します.
 	 * 
 	 * @param name 項目名
