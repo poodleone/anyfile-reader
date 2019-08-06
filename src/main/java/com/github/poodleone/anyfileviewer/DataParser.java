@@ -88,7 +88,7 @@ public class DataParser {
 		}
 	}
 
-	private static boolean parseItems(String groupName, ItemDefinition itemDefinition, Record record,
+	private static boolean parseItems(String parentGroupName, ItemDefinition itemDefinition, Record record,
 			ParserStatus parserStatus) {
 
 		if (itemDefinition instanceof ItemGroupDefinition) {
@@ -98,9 +98,22 @@ public class DataParser {
 				return false;
 			}
 			
-			int sameGroupCount = parserStatus.groupNameMap.computeIfAbsent(groupName, (k) -> new AtomicInteger())
-					.getAndIncrement();
-			groupName = groupName.isEmpty() || 0 == sameGroupCount ? groupName : groupName + "(" + (sameGroupCount + 1) + ")";
+			String groupName = itemDefinition.getName();
+			String name;
+			if (!parentGroupName.isEmpty() && !groupName.isEmpty()) {
+				name = parentGroupName + "." + groupName;
+			} else if (groupName.isEmpty()) {
+				name = parentGroupName;
+			} else {
+				name = groupName;
+			}
+			AtomicInteger sameGroupCount = parserStatus.groupNameMap.computeIfAbsent(name, (k) -> new AtomicInteger());
+			if (!groupName.isEmpty()) {
+				if (sameGroupCount.incrementAndGet() != 1) {
+					name = name + "(" + sameGroupCount.get() + ")";
+				}
+			}
+			
 			boolean isAdded = false;
 			for (ItemDefinition child : itemDefinition.getChildren()) {
 				if (child instanceof ItemGroupDefinition) {
@@ -111,15 +124,6 @@ public class DataParser {
 						// ELSIF/ELSEブロックの場合、前のIF/ELSIFブロックの条件が満たされていたらこのブロックは評価しない
 						continue;
 					}
-				}
-				String itemName = itemDefinition.getName();
-				String name;
-				if (!groupName.isEmpty() && !itemName.isEmpty()) {
-					name = groupName + "." + itemDefinition.getName();
-				} else if (itemName.isEmpty()) {
-					name = groupName;
-				} else {
-					name = itemName;
 				}
 				isAdded = parseItems(name, child, record, parserStatus);
 			}
@@ -137,11 +141,12 @@ public class DataParser {
 
 		} else {
 			// 項目の場合、レコードに項目を追加
-			String name = groupName.isEmpty() ? itemDefinition.getName() : groupName + "." + itemDefinition.getName();
-
+			String name = parentGroupName.isEmpty() ? itemDefinition.getName() : parentGroupName + "." + itemDefinition.getName();
 			int sameItemCount = parserStatus.itemNameMap.computeIfAbsent(name, (k) -> new AtomicInteger())
-					.getAndIncrement();
-			name = name.isEmpty() || 0 == sameItemCount ? name : name + "(" + (sameItemCount + 1) + ")";
+					.incrementAndGet();
+			if (!name.isEmpty() && sameItemCount != 1) {
+				name = name + "(" + sameItemCount+ ")";
+			}
 			
 			record.getItems().put(name, new RecordItemImpl(record, itemDefinition, parserStatus.offset));
 			parserStatus.offset += itemDefinition.getLength(record, parserStatus.offset);
@@ -228,6 +233,7 @@ public class DataParser {
 			}
 			cx.evaluateString(scope, "var $ = function(name) { return rec.getValue(name); }", "", 1, null);
 			cx.evaluateString(scope, "var $hex = function(name) { return rec.getHexValue(name) }", "", 1, null);
+			cx.evaluateString(scope, "var $str = function(name) { return rec.getRawStringValue(name) }", "", 1, null);
 
 			Object result = cx.evaluateString(scope, expression, "", 1, null);
 			return (T) Context.jsToJava(result, returnType);
