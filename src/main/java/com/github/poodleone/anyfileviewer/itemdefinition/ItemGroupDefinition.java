@@ -1,6 +1,5 @@
 package com.github.poodleone.anyfileviewer.itemdefinition;
 
-import java.util.Collections;
 import java.util.List;
 
 import com.github.poodleone.anyfileviewer.record.Record;
