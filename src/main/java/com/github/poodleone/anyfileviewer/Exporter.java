@@ -10,8 +10,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import com.github.poodleone.anyfileviewer.record.RecordItemImpl;
 import com.github.poodleone.anyfileviewer.record.Record;
+import com.github.poodleone.anyfileviewer.record.RecordItemImpl;
 
 /**
  * ファイルの解析結果をエクスポートするクラスです.
@@ -19,7 +19,7 @@ import com.github.poodleone.anyfileviewer.record.Record;
 public class Exporter {
 	/**
 	 * 一覧をエクスポートします.
-	 * 
+	 *
 	 * @param recordFormat      ファイルのレコード形式
 	 * @param inputPath         入力ファイルパス
 	 * @param outputPath        出力ファイルパス
@@ -59,7 +59,7 @@ public class Exporter {
 
 	/**
 	 * レコード詳細を1ファイルにまとめてエクスポートします.
-	 * 
+	 *
 	 * @param recordFormat      ファイルのレコード形式
 	 * @param inputPath         入力ファイルパス
 	 * @param outputPath        出力ファイルパス
@@ -95,7 +95,7 @@ public class Exporter {
 
 	/**
 	 * レコード詳細を1レコード1ファイルでエクスポートします.
-	 * 
+	 *
 	 * @param recordFormat       ファイルのレコード形式
 	 * @param inputPath          入力ファイルパス
 	 * @param outputDirPath      出力ディレクトリパス
@@ -148,20 +148,33 @@ public class Exporter {
 
 		AtomicInteger no = new AtomicInteger();
 		record.getMetaItems().entrySet().stream().forEach(e -> {
-			sb.append(String.join(delimiter, "メタ情報", Integer.toString(no.incrementAndGet()), quote(e.getKey()), "", "",
-					quote(e.getValue().toString()), "")).append(System.lineSeparator());
+			sb.append(String.join(delimiter,
+					"メタ情報",
+					Integer.toString(no.incrementAndGet()),
+					quote(e.getKey()),
+					"",
+					"",
+					quote(e.getValue().toString()),
+					"")).append(System.lineSeparator());
 		});
 
 		no.set(0);
 		record.getItems().entrySet().stream().forEach(e -> {
 			Object v = e.getValue();
-			String offset = "", length = "";
+			String offset = "", length = "", hex = "";
 			if (v instanceof RecordItemImpl) {
 				offset = Integer.toString(((RecordItemImpl) v).getOffset());
-				length = Integer.toString(((RecordItemImpl) v).getOffset());
+				length = Integer.toString(((RecordItemImpl) v).getLength());
+				hex = ((RecordItemImpl) v).toHexString();
 			}
-			sb.append(String.join(delimiter, "データ", Integer.toString(no.incrementAndGet()), quote(e.getKey()), offset,
-					length, quote(v.toString()), "")).append(System.lineSeparator());
+			sb.append(String.join(delimiter,
+					"データ",
+					Integer.toString(no.incrementAndGet()),
+					quote(e.getKey()),
+					offset,
+					length,
+					quote(v.toString()),
+					hex)).append(System.lineSeparator());
 			;
 		});
 

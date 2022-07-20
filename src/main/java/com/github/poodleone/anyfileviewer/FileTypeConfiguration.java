@@ -19,21 +19,22 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import com.github.poodleone.anyfileviewer.reader.RecordReader;
-import com.github.poodleone.anyfileviewer.utils.Validate;
 import com.github.poodleone.anyfileviewer.itemdefinition.HexItemDefinition;
 import com.github.poodleone.anyfileviewer.itemdefinition.InnerItemDefinition;
 import com.github.poodleone.anyfileviewer.itemdefinition.ItemDefinition;
 import com.github.poodleone.anyfileviewer.itemdefinition.ItemGroupDefinition;
-import com.github.poodleone.anyfileviewer.itemdefinition.StringItemDefinition;
 import com.github.poodleone.anyfileviewer.itemdefinition.ItemGroupDefinition.ConditionType;
 import com.github.poodleone.anyfileviewer.itemdefinition.MetaItemDefinition;
+import com.github.poodleone.anyfileviewer.itemdefinition.StringItemDefinition;
+import com.github.poodleone.anyfileviewer.reader.RecordReader;
+import com.github.poodleone.anyfileviewer.utils.Validate;
 
 /**
  * ファイル種類の設定を管理するクラス.
@@ -49,12 +50,15 @@ public class FileTypeConfiguration {
 	/** 各ファイルのデータグループ定義のMap(key: グループ名(拡張子抜きのプロパティファイル名), value: データグループ定義) */
 	private Map<String, ItemGroupDefinition> dataGroupDefinitionMap = new LinkedHashMap<>();
 
+	/** データグループ定義ファイルの配置ディレクトリ */
+	private List<String> dataGroupFormatsDirs;
+
 	/** CSVデータのセパレータ(要素のクォートに対応). */
 	private static String CSV_SEPARATOR = ",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)";
 
 	/**
 	 * ファイル種類の設定を読み込みます.
-	 * 
+	 *
 	 * @param path 読込対象の設定プロパティファイルのパス
 	 */
 	public FileTypeConfiguration(Path path) {
@@ -73,7 +77,11 @@ public class FileTypeConfiguration {
 		});
 
 		// レコード形式/データグループ形式定義の読み込み
-		loadDataGroupDefinitions(getStringValue(path, properties, "dataGroupFormats.dir"));
+		dataGroupFormatsDirs = properties.entrySet().stream()
+				.filter(p -> p.getKey().toString().matches("dataGroupFormats\\.dir.*"))
+				.map(p -> p.getValue().toString())
+				.collect(Collectors.toList());
+		loadDataGroupDefinitions(dataGroupFormatsDirs);
 
 		// ファイル形式の設定
 		getValues(properties, "(?<group>fileType\\d+)\\.(?<name>name)").forEach(keyValue -> {
@@ -86,7 +94,7 @@ public class FileTypeConfiguration {
 			} catch (ClassNotFoundException | ClassCastException e) {
 				throw new InvalidFileTypeConfigurationException(path, key, "RecordReaderのクラス" + readerClassName + "は存在しません。");
 			}
-			
+
 			// Readerのオプション設定を取得
 			Map<String, String> readerOptions = new HashMap<>();
 			try {
@@ -111,7 +119,7 @@ public class FileTypeConfiguration {
 			} else {
 				dumpLayoutDefinitions = Collections.emptyList();
 			}
-			
+
 			// 式で評価するメタデータの定義を取得
 			Map<String, String> metaItemExpressions = new HashMap<>();
 			getValues(properties, "(?<group>" + keyValue.keyGroup + "\\.metaItemExpression)\\.(?<name>.+)").forEach(keyValue2 -> {
@@ -125,7 +133,7 @@ public class FileTypeConfiguration {
 
 	/**
 	 * ファイル種類の設定プロパティファイルをfileDefinitionsディレクトリから検索します.
-	 * 
+	 *
 	 * @return 設定プロパティファイルのパスリスト
 	 */
 	public static List<Path> findPropertyFiles() {
@@ -166,27 +174,31 @@ public class FileTypeConfiguration {
 	/**
 	 * データグループ定義を指定のディレクトリから検索し、読み込みます.<br>
 	 * 読み込んだ定義はdataGroupDefinitionMapに追加します.
-	 * 
-	 * @param dirName データグループ定義の配置ディレクトリ名
+	 *
+	 * @param dirNames データグループ定義の配置ディレクトリ名
 	 */
-	private void loadDataGroupDefinitions(String dirName) {
+	private void loadDataGroupDefinitions(List<String> dirNames) {
 		dataGroupDefinitionMap.clear();
-		URL url = getClass().getClassLoader().getResource(dirName);
-		if (url == null) {
-			throw new RuntimeException(dirName + "ディレクトリが見つかりません。");
-		} else {
-			try (Stream<Path> stream = Files.list(Paths.get(url.toURI()))) {
-				stream.filter(path -> path.toString().endsWith(".properties"))
-						.forEach(path -> loadDataGroupDefinition(path));
-			} catch (IOException | URISyntaxException e) {
-				throw new AssertionError(e);
+
+		dirNames.forEach(dirName -> {
+			URL url = getClass().getClassLoader().getResource(dirName);
+			if (url == null) {
+				throw new RuntimeException(dirName + "ディレクトリが見つかりません。");
+			} else {
+				try (Stream<Path> stream = Files.list(Paths.get(url.toURI()))) {
+					stream.filter(path -> path.toString().endsWith(".properties"))
+							.forEach(path -> loadDataGroupDefinition(path));
+				} catch (IOException | URISyntaxException e) {
+					throw new AssertionError(e);
+				}
 			}
-		}
+		});
+
 	}
 
 	/**
 	 * 個別のデータグループ定義を読み込みます.
-	 * 
+	 *
 	 * @param path データグループ定義の配置ディレクトリ名
 	 */
 	private void loadDataGroupDefinition(Path path) {
@@ -214,7 +226,7 @@ public class FileTypeConfiguration {
 
 				ItemGroupDefinition prevGroup = stack.removeLast().itemDefinition;
 				stack.getLast().itemDefinition.getChildren().add(prevGroup);
-				
+
 				String subGroupCondition = keyValue.value.substring(5);
 				stack.addLast(new Pair(keyValue.key, new ItemGroupDefinition("", new ArrayList<>(), subGroupCondition, ConditionType.ELSIF)));
 
@@ -245,8 +257,16 @@ public class FileTypeConfiguration {
 				if (type.trim().equals("group")) {
 					Arrays.stream(values[1].split(CSV_SEPARATOR)).forEach(e -> {
 						String name = e.trim();
-						loadDataGroupDefinition(path.getParent().resolve(name + ".properties"));
-						target.add(dataGroupDefinitionMap.get(name));
+						URL url = dataGroupFormatsDirs.stream()
+								.map(dirName -> getClass().getClassLoader().getResource(dirName + "/" + name + ".properties"))
+								.filter(Objects::nonNull)
+								.findFirst()
+								.orElseThrow(() -> new InvalidFileTypeConfigurationException(path, keyValue.key, name + ".properties が見つかりません。"));
+						try {
+							loadDataGroupDefinition(Paths.get(url.toURI()));
+							target.add(dataGroupDefinitionMap.get(name));
+						} catch (URISyntaxException ignore) {
+						}
 					});
 
 				} else if (type.equals("string")) {
@@ -275,7 +295,7 @@ public class FileTypeConfiguration {
 					String[] tmp = values[1].split(CSV_SEPARATOR);
 					Validate.isTrue(tmp.length == 2,
 							() -> new InvalidFileTypeConfigurationException(path, keyValue.key, "形式が不正です。項目タイプmetaの場合、項目名、項目値の算出式の指定が必要です。"));
-					
+
 					String name = get(tmp, 0);
 					String valueExpression = get(tmp, 1);
 					target.add(new MetaItemDefinition(name, valueExpression));
@@ -284,7 +304,7 @@ public class FileTypeConfiguration {
 					String[] tmp = values[1].split(CSV_SEPARATOR);
 					Validate.isTrue(tmp.length == 2,
 							() -> new InvalidFileTypeConfigurationException(path, keyValue.key, "形式が不正です。項目タイプhiddenの場合、項目名、項目値の算出式の指定が必要です。"));
-					
+
 					String name = get(tmp, 0);
 					String valueExpression = get(tmp, 1);
 					target.add(new InnerItemDefinition(name, valueExpression));
@@ -312,7 +332,7 @@ public class FileTypeConfiguration {
 
 	/**
 	 * プロパティファイルを読み込みます.
-	 * 
+	 *
 	 * @param path プロパティファイル名
 	 * @return プロパティ
 	 */
@@ -374,7 +394,7 @@ public class FileTypeConfiguration {
 		/**
 		 * 指定されたエラー詳細メッセージと原因を持つInvalidFileTypeConfigurationExceptionを構築します.<br>
 		 * pathとpropertyKeyはエラー詳細メッセージに埋め込まれます.
-		 * 
+		 *
 		 * @param path        問題あったファイル種類設定のパス
 		 * @param propertyKey 問題のあったプロパティのキー
 		 * @param message     詳細メッセージ
@@ -387,7 +407,7 @@ public class FileTypeConfiguration {
 		/**
 		 * 指定されたエラー詳細メッセージと持つInvalidFileTypeConfigurationExceptionを構築します.<br>
 		 * pathとpropertyKeyはエラー詳細メッセージに埋め込まれます.
-		 * 
+		 *
 		 * @param path        不正な内容のあったファイル種類設定のパス
 		 * @param propertyKey 問題のあったプロパティのキー
 		 * @param message     詳細メッセージ
@@ -397,7 +417,7 @@ public class FileTypeConfiguration {
 		}
 
 	}
-	
+
 	private class Pair {
 		public String key;
 		public ItemGroupDefinition itemDefinition;
