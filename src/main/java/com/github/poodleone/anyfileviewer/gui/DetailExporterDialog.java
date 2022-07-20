@@ -20,9 +20,9 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 
+import com.github.poodleone.anyfileviewer.Exporter;
 import com.github.poodleone.anyfileviewer.FileTypeConfiguration;
 import com.github.poodleone.anyfileviewer.RecordFormat;
-import com.github.poodleone.anyfileviewer.Exporter;
 import com.github.poodleone.anyfileviewer.utils.GUIUtils;
 
 /**
@@ -40,8 +40,8 @@ public class DetailExporterDialog extends JDialog {
 	private JComboBox<RecordFormat> fileTypeCombo = new JComboBox<>();
 	private JTextField delimiterText = new JTextField(",", 3);
 	private JTextField filterText = new JTextField();
-	private JTextField headerText = new JTextField("\"[No.\" + $(\"[No.]\") + \" \" + $(\"DATETIME\") + \"]\"");
-	private JTextField fileNameText = new JTextField("\"No.\" + $(\"[No.]\") + \"_\" + $(\"DATETIME\") + \".txt\"");
+	private JTextField headerText = new JTextField("\"[No.\" + $(\"[No.]\") + \" \" + $(\"DateTime\") + \"]\"");
+	private JTextField fileNameText = new JTextField("\"No.\" + $(\"[No.]\") + \"_\" + $(\"DateTime\") + \".txt\"");
 
 	private JCheckBox separateFilesCheckBox = new JCheckBox("レコードごとにファイルを分ける", true);
 	private JCheckBox useExtendedFilterCheckBox = new JCheckBox("高度なフィルタを使用する", false);
@@ -49,7 +49,7 @@ public class DetailExporterDialog extends JDialog {
 
 	/**
 	 * レコード詳細をエクスポートするダイアログを生成します.
-	 * 
+	 *
 	 * @param config            ビューワの設定
 	 * @param recordFormat      ファイルのレコード形式の初期選択値
 	 * @param path              入力元ファイル名の初期選択値
@@ -155,8 +155,8 @@ public class DetailExporterDialog extends JDialog {
 		exportButton.addActionListener(e -> {
 			Path inputPath = toPath(inputPathText.getText());
 			Path outputPath = toPath(outputPathText.getText());
-			if (inputPath != null || outputPath != null) {
-				JOptionPane.showMessageDialog(this, "出力先または出力先の指定が不正です。", getTitle(), JOptionPane.OK_OPTION);
+			if (inputPath == null || outputPath == null) {
+				JOptionPane.showMessageDialog(this, "入力元または出力先の指定が不正です。", getTitle(), JOptionPane.OK_OPTION);
 				return;
 			}
 			if (separateFilesCheckBox.isSelected()) {
