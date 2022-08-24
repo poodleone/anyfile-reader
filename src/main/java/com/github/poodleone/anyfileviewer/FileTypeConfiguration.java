@@ -214,7 +214,7 @@ public class FileTypeConfiguration {
 		Deque<Pair> stack = new LinkedList<>();
 		stack.addLast(new Pair("", new ItemGroupDefinition(groupName, new ArrayList<>(), condition, null)));
 
-		for (GroupedKeyValue keyValue : getValues(properties, "(?<group>item\\d+)(?<name>)")
+		for (GroupedKeyValue keyValue : getValues(properties, "(?<group>item[0-9A-Z]+)(?<name>)")
 				.collect(Collectors.toList())) {
 			if (keyValue.value.matches("^if\\b.*")) {
 				String subGroupCondition = keyValue.value.substring(2);
